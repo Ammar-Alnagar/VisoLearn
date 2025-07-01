@@ -1,9 +1,9 @@
-# VisoLearn-2 - Enterprise Visual Learning Platform for Autism Support
+# Wisal - Enterprise Visual Learning Platform for Autism Support
 ## 🏆 Award-Winning AI-Powered Educational Technology | Enterprise-Grade Analytics & Insights
 
 <div align="center">
 
-![VisoLearn Logo](ui/Compumacy-Logo-Trans2.png)
+![Wisal Logo](ui/Compumacy-Logo-Trans2.png)
 
 **🌟 Empowering communication through adaptive visual learning and interactive storytelling 🌟**
 
@@ -15,9 +15,45 @@
 [![Coverage](https://img.shields.io/badge/coverage-85%25-brightgreen.svg)](#testing)
 [![Documentation](https://img.shields.io/badge/docs-comprehensive-blue.svg)](#documentation)
 
-[🚀 Quick Start](#-installation--setup) | [📖 Documentation](#-comprehensive-documentation) | [🎯 Features](#-core-features) | [🤝 Contributing](#-contributing) | [💬 Community](#-community--support)
+[🚀 Quick Start](#-quick-start) | [📖 Full Documentation](#-table-of-contents) | [🎯 Features](#-core-features) | [🤝 Contributing](#-contributing) | [💬 Community](#-community--support)
 
 </div>
+
+---
+
+## 🚀 Quick Start
+
+This section is for developers who want to get Wisal running quickly. For detailed installation and explanation, please refer to the [Installation & Setup](#-installation--setup) section.
+
+**1. Prerequisites:**
+   - Python 3.8+
+   - Git
+   - Docker & Docker Compose (Recommended for easiest setup)
+
+**2. Clone & Configure:**
+   ```bash
+   git clone https://github.com/your-username/Wisal.git # Replace with actual repo URL
+   cd Wisal
+   cp .env.example .env
+   # Edit .env and add your OPENAI_API_KEY and GOOGLE_API_KEY
+   nano .env # Or your preferred editor
+   ```
+
+**3. Run with Docker (Recommended):**
+   ```bash
+   docker-compose up --build
+   ```
+   Access at `http://localhost:7860`.
+
+**4. (Alternative) Run with Local Python Environment:**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   pip install --upgrade pip
+   pip install -r requirements.txt
+   python app.py
+   ```
+   Access at `http://127.0.0.1:7860`.
 
 ---
 
@@ -46,7 +82,7 @@
 
 ### Mission Statement
 
-VisoLearn-2 is a revolutionary, AI-powered educational platform designed specifically for children with Autism Spectrum Disorder (ASD). Our mission is to leverage cutting-edge artificial intelligence to create personalized, engaging, and therapeutically effective visual learning experiences that promote communication skills, narrative understanding, and social development.
+Wisal is a revolutionary, AI-powered educational platform designed specifically for children with Autism Spectrum Disorder (ASD). Our mission is to leverage cutting-edge artificial intelligence to create personalized, engaging, and therapeutically effective visual learning experiences that promote communication skills, narrative understanding, and social development.
 
 ### Core Philosophy
 
@@ -227,6 +263,69 @@ export_options = {
 ## 🏗️ Technical Architecture
 
 ### System Overview
+
+#### Conceptual Architecture
+```mermaid
+graph TD
+    subgraph User Facing
+        UI[📱 User Interface (Gradio)]
+    end
+
+    subgraph Backend Services
+        API[⚙️ Application Server (Python/FastAPI)]
+        SM[🧠 Session & State Management]
+        FO[↔️ File Operations & Utils]
+    end
+
+    subgraph AI Core
+        AIGen[🖼️ AI Image Generation (OpenAI)]
+        AITxt[📝 AI Text Processing (Google Gemini)]
+        AIEval[💡 Custom Evaluation Engine]
+        AICV[👁️ Computer Vision (OpenCV)]
+    end
+
+    subgraph Data & Storage
+        LocalFS[💾 Local File System]
+        GDrive[☁️ Google Drive]
+        AnalyticsDB[📊 Analytics Storage]
+        SessionDB[⏳ Session Persistence]
+    end
+
+    UI --> API;
+    API --> SM;
+    API --> FO;
+    API --> AIGen;
+    API --> AITxt;
+    API --> AIEval;
+    API --> AICV;
+
+    AIGen --> LocalFS;
+    AITxt --> SessionDB;
+    AIEval --> AnalyticsDB;
+    AICV --> LocalFS;
+
+    FO --> LocalFS;
+    FO --> GDrive;
+    SM --> SessionDB;
+
+    click UI "#" "User Interface Layer"
+    click API "#" "Application Server"
+    click AIGen "#ai--machine-learning" "AI Image Generation"
+    click AITxt "#ai--machine-learning" "AI Text Processing"
+    click LocalFS "#data-layer" "Local File System"
+```
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
+  <img src="https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white" alt="OpenAI" />
+  <img src="https://img.shields.io/badge/Google%20Gemini-4A80EF?style=for-the-badge&logo=google&logoColor=white" alt="Google Gemini" />
+  <img src="https://img.shields.io/badge/Gradio-FF7C00?style=for-the-badge&logo=gradio&logoColor=white" alt="Gradio" />
+  <img src="https://img.shields.io/badge/OpenCV-5C3EE8?style=for-the-badge&logo=opencv&logoColor=white" alt="OpenCV" />
+  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
+  <img src="https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white" alt="AWS" />
+</p>
+
+#### Detailed Layered Architecture
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    VisoLearn-2 Architecture                 │
@@ -315,6 +414,40 @@ ai_models = {
 
 ### Data Flow Architecture
 
+#### User Interaction Sequence Example: Image Generation & Evaluation
+```mermaid
+sequenceDiagram
+    participant User
+    participant UI (Gradio Frontend)
+    participant AppServer (Python Backend)
+    participant PromptEngine
+    participant OpenAI_ImgGen
+    participant DetailExtractor
+    participant Gemini_Eval
+    participant FeedbackGen
+
+    User->>UI: Enters parameters (age, topic, style)
+    User->>UI: Clicks "Generate Image"
+    UI->>AppServer: Request new image (parameters)
+    AppServer->>PromptEngine: Generate prompt (parameters)
+    PromptEngine-->>AppServer: Optimized prompt
+    AppServer->>OpenAI_ImgGen: Request image (prompt)
+    OpenAI_ImgGen-->>AppServer: Image data
+    AppServer->>DetailExtractor: Extract details (image, topic)
+    DetailExtractor-->>AppServer: Key learning details
+    AppServer-->>UI: Display image and context
+    UI-->>User: Shows generated image
+
+    User->>UI: Enters description of the image
+    UI->>AppServer: Submit description (text, image_context)
+    AppServer->>Gemini_Eval: Evaluate description (text, details_list)
+    Gemini_Eval-->>AppServer: Evaluation result (score, identified_details)
+    AppServer->>FeedbackGen: Generate feedback (evaluation, autism_level)
+    FeedbackGen-->>AppServer: Constructive feedback message
+    AppServer-->>UI: Display feedback and score
+    UI-->>User: Shows feedback and progress
+```
+
 #### Image Description Practice Flow
 ```mermaid
 graph TD
@@ -352,7 +485,7 @@ graph TD
 
 ### File Structure
 ```
-VisoLearn-2/
+Wisal/
 ├── 📁 app.py                          # Main application entry point
 ├── 📁 config.py                       # Configuration settings and constants
 ├── 📁 models/                         # AI model integration modules
@@ -403,12 +536,17 @@ VisoLearn-2/
 - **Storage**: 2GB free space for installation, 5GB for full usage
 - **Internet**: Stable connection for AI API calls
 - **Browser**: Chrome 80+, Firefox 75+, Safari 13+, Edge 80+
+- **API Keys**:
+    - OpenAI API Key (for image generation and potentially other GPT-4 powered features)
+    - Google API Key (for Gemini text processing and other Google AI services)
+- **External Accounts (Optional):**
+    - Google Drive Account (if using the Google Drive export feature)
 
 #### Recommended Requirements
 - **RAM**: 16GB for optimal performance
 - **Storage**: SSD with 10GB+ free space
-- **Internet**: High-speed broadband (10 Mbps+)
-- **GPU**: CUDA-compatible GPU for enhanced performance (optional)
+- **Internet**: High-speed broadband (10 Mbps+) for smooth API interactions and faster model responses.
+- **GPU**: CUDA-compatible GPU for enhanced performance with certain local models or tasks (currently, core AI is cloud-based, but this is good for future-proofing or custom local model integration).
 
 ### Installation Methods
 
@@ -416,8 +554,8 @@ VisoLearn-2/
 
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/your-username/VisoLearn-2.git
-   cd VisoLearn-2
+   git clone https://github.com/your-username/Wisal.git
+   cd Wisal
    ```
 
 2. **Create Virtual Environment**
@@ -468,8 +606,8 @@ VisoLearn-2/
 3. **Application Deployment**
    ```bash
    # Clone and setup application
-   git clone https://github.com/yourusername/VisoLearn-2.git
-   cd VisoLearn-2
+   git clone https://github.com/yourusername/Wisal.git
+   cd Wisal
 
    # Create virtual environment
    python3.10 -m venv venv
@@ -486,20 +624,20 @@ VisoLearn-2/
 4. **Process Management with systemd**
    ```bash
    # Create systemd service file
-   sudo nano /etc/systemd/system/visolearn.service
+   sudo nano /etc/systemd/system/wisal.service
    ```
 
    ```ini
    [Unit]
-   Description=VisoLearn-2 Application
+   Description=Wisal Application
    After=network.target
 
    [Service]
    Type=simple
    User=ubuntu
-   WorkingDirectory=/home/ubuntu/VisoLearn-2
-   Environment=PATH=/home/ubuntu/VisoLearn-2/venv/bin
-   ExecStart=/home/ubuntu/VisoLearn-2/venv/bin/python app.py
+   WorkingDirectory=/home/ubuntu/Wisal
+   Environment=PATH=/home/ubuntu/Wisal/venv/bin
+   ExecStart=/home/ubuntu/Wisal/venv/bin/python app.py
    Restart=always
    RestartSec=10
 
@@ -510,16 +648,16 @@ VisoLearn-2/
 5. **Nginx Reverse Proxy Setup**
    ```bash
    # Create Nginx configuration
-   sudo nano /etc/nginx/sites-available/visolearn
+   sudo nano /etc/nginx/sites-available/wisal
    ```
 
    ```nginx
    server {
        listen 80;
-       server_name your-domain.com;
+       server_name your-domain.com; # Replace with your actual domain
 
        location / {
-           proxy_pass http://127.0.0.1:7860;
+           proxy_pass http://127.0.0.1:7860; # Assumes Gradio runs on port 7860
            proxy_set_header Host $host;
            proxy_set_header X-Real-IP $remote_addr;
            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -533,80 +671,94 @@ VisoLearn-2/
    # Install Certbot
    sudo apt install certbot python3-certbot-nginx -y
 
-   # Obtain SSL certificate
+   # Obtain SSL certificate (replace your-domain.com)
    sudo certbot --nginx -d your-domain.com
    ```
 
 7. **Start Services**
    ```bash
-   # Enable and start VisoLearn service
-   sudo systemctl enable visolearn
-   sudo systemctl start visolearn
+   # Enable and start Wisal service
+   sudo systemctl enable wisal
+   sudo systemctl start wisal
 
    # Enable and start Nginx
    sudo systemctl enable nginx
    sudo systemctl start nginx
 
    # Check status
-   sudo systemctl status visolearn
+   sudo systemctl status wisal
    sudo systemctl status nginx
    ```
 
 
 ### Configuration Setup
 
-#### API Key Configuration
+Wisal uses environment variables for configuration, particularly for API keys and application settings. This is managed via a `.env` file at the root of the project.
 
-1. **Create Configuration File**
+**1. Create your Environment File:**
+   Copy the example environment file:
+   ```bash
+   cp .env.example .env
+   ```
+   Then, edit the `.env` file with your actual API keys and desired settings.
+   ```bash
+   nano .env  # Or your preferred text editor
+   ```
+
+**2. Key Environment Variables:**
+   The `config.py` file loads these variables. Here are the most important ones:
+
+   | Variable           | Purpose                                           | Required | Example Value                      |
+   |--------------------|---------------------------------------------------|----------|------------------------------------|
+   | `OPENAI_API_KEY`   | Your API key for OpenAI services (e.g., GPT-4).   | Yes      | `sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxx` |
+   | `GOOGLE_API_KEY`   | Your API key for Google AI services (e.g., Gemini). | Yes      | `AIzaSyxxxxxxxxxxxxxxxxxxxxxxxxxxx`|
+   | `DEBUG`            | Enables debug mode for more verbose logging.      | No       | `True` or `False` (default)      |
+   | `LOG_LEVEL`        | Sets the application logging level.               | No       | `INFO` (default), `DEBUG`, `WARN`  |
+   | `GRADIO_SERVER_NAME`| Host for Gradio server (use `0.0.0.0` for Docker).| No       | `127.0.0.1` (default), `0.0.0.0` |
+   | `GOOGLE_CLIENT_SECRET_JSON_PATH` | Path to your Google client secret JSON for Drive API. | No (if not using Drive) | `credentials.json` |
+   | `GOOGLE_TOKEN_PICKLE_PATH` | Path to store Google API token. | No (if not using Drive) | `token.pickle` |
+
+   *Refer to `.env.example` for a full list of configurable variables.*
+
+**3. How `config.py` Loads Variables:**
+   The `config.py` file typically uses a library like `python-dotenv` to load variables from the `.env` file into the application's environment.
+
    ```python
-   # config.py
+   # Example snippet from config.py
    import os
    from dotenv import load_dotenv
 
+   # Load environment variables from .env file
    load_dotenv()
 
    # OpenAI Configuration
-   OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "your-openai-key")
+   OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+   if not OPENAI_API_KEY:
+       print("Warning: OPENAI_API_KEY not found in environment variables.")
+       # Consider raising an error or using a default/mock key for development
 
    # Google AI Configuration
-   GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "your-gemini-key")
+   GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+   if not GOOGLE_API_KEY:
+       print("Warning: GOOGLE_API_KEY not found in environment variables.")
 
    # Application Settings
    DEBUG = os.getenv("DEBUG", "False").lower() == "true"
    LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 
-   # Image Generation Settings
-   IMAGE_STYLES = [
-       "Comic Book Style",
-       "Photorealistic",
-       "Illustration",
-       "Manga Style",
-       "Watercolor",
-       "3D Rendering",
-       "Cartoon Style",
-       "Digital Art"
-   ]
-
-   # Difficulty Progression
-   DIFFICULTY_LEVELS = [
-       "Very Simple",
-       "Simple",
-       "Medium",
-       "Complex",
-       "Very Complex"
-   ]
-
-   # Autism Support Levels
-   AUTISM_LEVELS = ["Level 1", "Level 2", "Level 3"]
-
-   # Default Treatment Plans
-   DEFAULT_TREATMENT_PLANS = {
-       "Level 1": "Focus on social communication skills, emotional recognition, and flexible thinking development.",
-       "Level 2": "Emphasize visual supports, structured activities, clear communication patterns, and sensory considerations.",
-       "Level 3": "Prioritize basic communication needs, sensory-friendly environments, predictable routines, and consistent support."
-   }
+   # ... other configurations ...
    ```
+   *(The actual `config.py` in the project might have more sophisticated handling or directly use these values from `os.getenv`)*
 
+   The rest of the `config.py` (image styles, difficulty levels, etc.) as shown in the original README remains relevant for defining application constants.
+   ```python
+   # Image Generation Settings (Constants defined in config.py)
+   IMAGE_STYLES = [
+       "Comic Book Style", "Photorealistic", "Illustration", "Manga Style",
+       "Watercolor", "3D Rendering", "Cartoon Style", "Digital Art"
+   ]
+   # ... and other constants like DIFFICULTY_LEVELS, AUTISM_LEVELS etc.
+   ```
 
 ### Verification & Testing
 
@@ -950,12 +1102,12 @@ export_configurations = {
 #### Application Settings
 ```python
 # advanced_config.py
-class VisoLearnConfig:
+class WisalConfig:
     """Comprehensive configuration management"""
 
     # Core Application Settings
-    APP_NAME = "VisoLearn-2"
-    VERSION = "2.1.0"
+    APP_NAME = "Wisal"
+    VERSION = "2.1.0" # Or appropriate version for Wisal
     DEBUG_MODE = False
 
     # AI Model Configurations
@@ -1902,9 +2054,128 @@ qa_checklist = {
 
 ---
 
-## 🚀 Deployment WIP
+## 🚀 Deployment
 
-### Enterprise Production Deployment Architecture
+VisoLearn-2 can be deployed in various environments, from local machines for development and small-scale use to robust cloud infrastructure for enterprise applications.
+
+### Method 1: Standard Installation (Local/Development)
+Refer to the [🚀 Installation & Setup](#-installation--setup) section for detailed instructions on setting up a local environment, typically used for development or single-user instances.
+
+### Method 2: Docker Deployment (Recommended for Production & Scalability)
+
+Using Docker allows for consistent environments and easier scaling. We provide a `Dockerfile` and a `docker-compose.yml` for straightforward deployment.
+
+**Prerequisites:**
+- Docker installed: [Get Docker](https://docs.docker.com/get-docker/)
+- Docker Compose installed (usually included with Docker Desktop)
+
+**1. Create an Environment File:**
+   Copy the `.env.example` to `.env` and fill in your API keys and any other necessary configurations:
+   ```bash
+   cp .env.example .env
+   nano .env  # Or your preferred editor
+   ```
+
+**2. Build and Run with Docker Compose:**
+   From the root directory of the project:
+   ```bash
+   docker-compose up --build
+   ```
+   To run in detached mode (in the background):
+   ```bash
+   docker-compose up --build -d
+   ```
+   The application will be accessible at `http://localhost:7860`.
+
+**Dockerfile (`Dockerfile`):**
+   ```dockerfile
+   # Use an official Python runtime as a parent image
+   FROM python:3.10-slim
+
+   # Set environment variables
+   ENV PYTHONDONTWRITEBYTECODE 1
+   ENV PYTHONUNBUFFERED 1
+
+   # Set work directory
+   WORKDIR /app
+
+   # Install system dependencies (if any are needed beyond python, e.g., for OpenCV)
+   # Example: RUN apt-get update && apt-get install -y libgl1-mesa-glx
+   # For VisoLearn, OpenCV is a dependency, which might need system libs
+   RUN apt-get update && apt-get install -y --no-install-recommends \
+       libgl1-mesa-glx \
+       libglib2.0-0 \
+       libsm6 \
+       libxext6 \
+       libxrender1 \
+       && rm -rf /var/lib/apt/lists/*
+
+   # Install Python dependencies
+   COPY requirements.txt .
+   RUN pip install --no-cache-dir --upgrade pip && \
+       pip install --no-cache-dir -r requirements.txt
+
+   # Copy project files
+   COPY . .
+
+   # Expose the port Gradio runs on (default is 7860)
+   EXPOSE 7860
+
+   # Command to run the application
+   CMD ["python", "app.py"]
+   ```
+
+**Docker Compose File (`docker-compose.yml`):**
+   ```yaml
+   version: '3.8'
+
+   services:
+     visolearn:
+       build:
+         context: .
+         dockerfile: Dockerfile
+       ports:
+         - "7860:7860"
+       volumes:
+         # Mount local data for persistence if needed, e.g., for local_storage
+         # - ./data:/app/data
+         # Mount your config.py if you want to manage it outside the container
+         # - ./config.py:/app/config.py
+         # Mount environment variables file
+         - ./.env:/app/.env
+       environment:
+         # Pass API keys and other configurations as environment variables
+         # These can also be set in the .env file
+         - OPENAI_API_KEY=${OPENAI_API_KEY}
+         - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+         - DEBUG=${DEBUG:-False}
+         - GRADIO_SERVER_NAME=0.0.0.0 # Necessary to access from outside the container
+         # Add other environment variables as needed
+       restart: unless-stopped
+       # Add healthcheck if your app supports it
+       # healthcheck:
+       #   test: ["CMD", "curl", "-f", "http://localhost:7860"] # Adjust if Gradio has a health endpoint
+       #   interval: 30s
+       #   timeout: 10s
+       #   retries: 3
+       #   start_period: 60s
+
+   # Optional: Define named volumes for persistent data
+   # volumes:
+   #   visolearn_data:
+   #     driver: local
+   ```
+
+**Stopping the Application:**
+   ```bash
+   docker-compose down
+   ```
+
+### Method 3: AWS EC2 Enterprise Deployment
+
+For enterprise-grade deployments requiring high availability, scalability, and robust security, deploying on AWS EC2 (or similar cloud providers) is recommended. The following details outline a comprehensive setup.
+
+#### AWS Enterprise Infrastructure Deployment
 
 #### AWS Enterprise Infrastructure Deployment
 
@@ -1919,12 +2190,12 @@ terraform apply
 aws ec2 run-instances \
     --image-id ami-0c02fb55956c7d316 \
     --instance-type c5.2xlarge \
-    --key-name visolearn-enterprise-key \
-    --security-group-ids sg-enterprise-visolearn \
+    --key-name wisal-enterprise-key \
+    --security-group-ids sg-enterprise-wisal \
     --subnet-id subnet-private-1a subnet-private-1b \
-    --iam-instance-profile Name=VisoLearnEnterpriseRole \
+    --iam-instance-profile Name=WisalEnterpriseRole \
     --user-data file://enterprise-bootstrap.sh \
-    --tag-specifications 'ResourceType=instance,Tags=[{Key=Environment,Value=Production},{Key=Application,Value=VisoLearn-2},{Key=Compliance,Value=HIPAA-FERPA}]'
+    --tag-specifications 'ResourceType=instance,Tags=[{Key=Environment,Value=Production},{Key=Application,Value=Wisal},{Key=Compliance,Value=HIPAA-FERPA}]'
 ```
 
 **Enterprise Security & Compliance Configuration**
@@ -1961,24 +2232,24 @@ SecurityConfiguration:
 ```bash
 # Create security group
 aws ec2 create-security-group \
-    --group-name visolearn-sg \
-    --description "VisoLearn-2 Security Group"
+    --group-name wisal-sg \
+    --description "Wisal Security Group"
 
 # Allow HTTP/HTTPS and SSH
 aws ec2 authorize-security-group-ingress \
-    --group-name visolearn-sg \
+    --group-name wisal-sg \
     --protocol tcp \
     --port 80 \
     --cidr 0.0.0.0/0
 
 aws ec2 authorize-security-group-ingress \
-    --group-name visolearn-sg \
+    --group-name wisal-sg \
     --protocol tcp \
     --port 443 \
     --cidr 0.0.0.0/0
 
 aws ec2 authorize-security-group-ingress \
-    --group-name visolearn-sg \
+    --group-name wisal-sg \
     --protocol tcp \
     --port 22 \
     --cidr your-ip/32
@@ -1990,9 +2261,9 @@ aws ec2 authorize-security-group-ingress \
 # deploy.sh - Automated deployment script
 
 # Set variables
-REPO_URL="https://github.com/yourusername/VisoLearn-2.git"
-APP_DIR="/opt/visolearn"
-SERVICE_USER="visolearn"
+REPO_URL="https://github.com/yourusername/Wisal.git" # Update with actual Wisal repo URL
+APP_DIR="/opt/wisal"
+SERVICE_USER="wisal"
 
 # Create application user
 sudo useradd -r -s /bin/false $SERVICE_USER
@@ -2007,9 +2278,9 @@ sudo -u $SERVICE_USER python3 -m venv venv
 sudo -u $SERVICE_USER ./venv/bin/pip install -r requirements.txt
 
 # Configure systemd service
-sudo tee /etc/systemd/system/visolearn.service > /dev/null <<EOF
+sudo tee /etc/systemd/system/wisal.service > /dev/null <<EOF
 [Unit]
-Description=VisoLearn-2 Application
+Description=Wisal Application
 After=network.target
 
 [Service]
@@ -2023,7 +2294,7 @@ Restart=always
 RestartSec=10
 StandardOutput=syslog
 StandardError=syslog
-SyslogIdentifier=visolearn
+SyslogIdentifier=wisal
 
 [Install]
 WantedBy=multi-user.target
@@ -2031,14 +2302,14 @@ EOF
 
 # Enable and start service
 sudo systemctl daemon-reload
-sudo systemctl enable visolearn
-sudo systemctl start visolearn
+sudo systemctl enable wisal
+sudo systemctl start wisal
 ```
 
 **Load Balancer Configuration**
 ```json
 {
-  "LoadBalancerName": "visolearn-alb",
+  "LoadBalancerName": "wisal-alb",
   "Listeners": [
     {
       "Protocol": "HTTP",
@@ -2060,7 +2331,7 @@ sudo systemctl start visolearn
       "DefaultActions": [
         {
           "Type": "forward",
-          "TargetGroupArn": "arn:aws:elasticloadbalancing:region:account:targetgroup/visolearn-tg"
+          "TargetGroupArn": "arn:aws:elasticloadbalancing:region:account:targetgroup/wisal-tg"
         }
       ]
     }
@@ -2072,7 +2343,7 @@ sudo systemctl start visolearn
 ```yaml
 # auto-scaling-config.yaml
 AutoScalingGroup:
-  AutoScalingGroupName: visolearn-asg
+  AutoScalingGroupName: wisal-asg
   MinSize: 2
   MaxSize: 10
   DesiredCapacity: 3
@@ -2081,25 +2352,25 @@ AutoScalingGroup:
   HealthCheckGracePeriod: 300
   
 LaunchTemplate:
-  LaunchTemplateName: visolearn-lt
-  ImageId: ami-0c02fb55956c7d316
+  LaunchTemplateName: wisal-lt
+  ImageId: ami-0c02fb55956c7d316 # Ensure this AMI is appropriate for Wisal
   InstanceType: t3.large
   SecurityGroupIds:
-    - sg-xxxxxxxxx
+    - sg-xxxxxxxxx # Replace with your Wisal security group
   UserData: !Base64 |
     #!/bin/bash
     yum update -y
-    # Application setup script here
+    # Application setup script here (specific to Wisal)
 
 ScalingPolicies:
-  - PolicyName: scale-up
+  - PolicyName: scale-up-wisal
     ScalingAdjustment: 1
     AdjustmentType: ChangeInCapacity
     MetricName: CPUUtilization
     Threshold: 70
     ComparisonOperator: GreaterThanThreshold
     
-  - PolicyName: scale-down
+  - PolicyName: scale-down-wisal
     ScalingAdjustment: -1
     AdjustmentType: ChangeInCapacity  
     MetricName: CPUUtilization
@@ -2115,21 +2386,21 @@ import boto3
 def setup_cloudwatch_monitoring():
     cloudwatch = boto3.client('cloudwatch')
     
-    # Custom metrics for VisoLearn
+    # Custom metrics for Wisal
     custom_metrics = [
         {
             'MetricName': 'ActiveSessions',
-            'Namespace': 'VisoLearn/Application',
+            'Namespace': 'Wisal/Application',
             'Unit': 'Count'
         },
         {
             'MetricName': 'ImageGenerationLatency',
-            'Namespace': 'VisoLearn/Performance', 
+            'Namespace': 'Wisal/Performance',
             'Unit': 'Milliseconds'
         },
         {
             'MetricName': 'LearningSessionsCompleted',
-            'Namespace': 'VisoLearn/Analytics',
+            'Namespace': 'Wisal/Analytics',
             'Unit': 'Count'
         }
     ]
@@ -2137,13 +2408,13 @@ def setup_cloudwatch_monitoring():
     # Create alarms
     alarms = [
         {
-            'AlarmName': 'VisoLearn-HighCPU',
+            'AlarmName': 'Wisal-HighCPU',
             'MetricName': 'CPUUtilization',
             'Threshold': 80.0,
             'ComparisonOperator': 'GreaterThanThreshold'
         },
         {
-            'AlarmName': 'VisoLearn-HighMemory', 
+            'AlarmName': 'Wisal-HighMemory',
             'MetricName': 'MemoryUtilization',
             'Threshold': 85.0,
             'ComparisonOperator': 'GreaterThanThreshold'
@@ -2159,13 +2430,13 @@ def create_dashboard():
                 "properties": {
                     "metrics": [
                         ["AWS/EC2", "CPUUtilization"],
-                        ["VisoLearn/Application", "ActiveSessions"],
-                        ["VisoLearn/Performance", "ImageGenerationLatency"]
+                        ["Wisal/Application", "ActiveSessions"],
+                        ["Wisal/Performance", "ImageGenerationLatency"]
                     ],
                     "period": 300,
                     "stat": "Average",
-                    "region": "us-east-1",
-                    "title": "VisoLearn Performance Metrics"
+                    "region": "us-east-1", # Adjust region as needed
+                    "title": "Wisal Performance Metrics"
                 }
             }
         ]
@@ -2177,14 +2448,14 @@ def setup_enterprise_monitoring_suite():
     # Advanced APM Integration
     apm_config = {
         'new_relic': {
-            'app_name': 'VisoLearn-2-Enterprise',
+            'app_name': 'Wisal-Enterprise',
             'license_key': '${NEW_RELIC_LICENSE_KEY}',
             'distributed_tracing': True,
             'high_security': True
         },
         'datadog': {
             'api_key': '${DATADOG_API_KEY}',
-            'service_name': 'visolearn-enterprise',
+            'service_name': 'wisal-enterprise',
             'env': 'production',
             'profiling': True
         }
@@ -2237,7 +2508,7 @@ class EnterpriseSecurityMonitoring:
 
 ### Industry-Leading Performance Metrics
 
-| Metric | VisoLearn-2 | Industry Average | Improvement |
+| Metric | Wisal | Industry Average | Improvement |
 |--------|-------------|------------------|-------------|
 | Image Generation Latency | 0.8s | 2.3s | **187% faster** |
 | Learning Session Success Rate | 97.8% | 78.5% | **25% higher** |
@@ -2287,7 +2558,7 @@ import pickle
 from functools import wraps
 from typing import Any, Callable
 
-class VisoLearnCache:
+class WisalCache:
     """Intelligent caching system for performance optimization"""
 
     def __init__(self):
@@ -2441,6 +2712,32 @@ class MemoryManager:
             print(f"Memory after cleanup: {self.monitor_memory_usage()['rss_mb']:.1f}MB")
 ```
 
+#### Database Optimization (General Considerations)
+If VisoLearn-2 utilizes a database for analytics, session management, or other persistent storage, consider these optimization strategies:
+- **Indexing:** Ensure appropriate database indexes are created for columns frequently used in query `WHERE` clauses, `JOIN` conditions, and `ORDER BY` clauses. This can dramatically speed up read operations.
+- **Query Optimization:** Analyze and optimize complex queries. Use tools like `EXPLAIN` (available in most SQL databases) to understand query execution plans and identify bottlenecks.
+- **Connection Pooling:** Use database connection pooling to manage database connections efficiently, reducing the overhead of establishing connections for each request.
+- **Data Caching:** Cache frequently accessed database query results in memory (e.g., using Redis, Memcached) to reduce direct database load.
+- **Regular Maintenance:** Perform regular database maintenance tasks such as vacuuming (for PostgreSQL), optimizing tables, and updating statistics.
+- **Read Replicas:** For read-heavy workloads, consider using read replicas to distribute read traffic across multiple database instances.
+- **Schema Design:** Design your database schema efficiently. Normalize data where appropriate to reduce redundancy, but consider denormalization for specific performance-critical queries.
+
+#### Content Delivery Network (CDN)
+Utilizing a CDN can significantly improve frontend load times and reduce server load by caching and serving static assets (CSS, JavaScript, images, fonts) from servers geographically closer to users.
+- **Asset Caching:** Configure your CDN to cache static assets with appropriate cache-control headers.
+- **Global Distribution:** CDNs distribute your content across multiple Points of Presence (PoPs) worldwide.
+- **Reduced Latency:** Users fetch assets from the nearest PoP, reducing latency.
+- **Offloading Traffic:** Reduces traffic to your origin server.
+- **Examples:** AWS CloudFront, Cloudflare, Akamai, Google Cloud CDN.
+
+#### Load Balancing
+Distributing incoming application traffic across multiple servers (instances of your application) is crucial for scalability and reliability.
+- **Improved Availability:** If one server fails, the load balancer redirects traffic to healthy servers.
+- **Enhanced Scalability:** Easily add or remove application servers from the pool as demand changes.
+- **Session Persistence (Sticky Sessions):** If your application requires users to connect to the same server for a session, configure session persistence on your load balancer (though stateless application design is often preferred).
+- **Health Checks:** Load balancers perform health checks on backend servers and only route traffic to healthy instances.
+- **Types:** Application Load Balancer (ALB), Network Load Balancer (NLB). ALBs are typically used for HTTP/HTTPS traffic and offer more advanced routing features.
+
 ---
 
 ## 🛠️ Troubleshooting
@@ -2593,7 +2890,7 @@ def run_comprehensive_health_check():
         "google_drive_auth": check_google_drive()
     }
 
-    print("\n=== VisoLearn-2 Health Check ===")
+    print("\n=== Wisal Health Check ===")
     for check_name, status in checks.items():
         status_icon = "✅" if status["status"] == "pass" else "❌"
         print(f"{status_icon} {check_name}: {status['message']}")
@@ -2661,13 +2958,25 @@ def check_dependencies():
 
 ## 🤝 Contributing
 
+We warmly welcome contributions to Wisal! Whether you're fixing bugs, adding new features, improving documentation, or helping with testing, your efforts are highly appreciated.
+
+### Code of Conduct
+All contributors are expected to adhere to our [Code of Conduct](https://www.contributor-covenant.org/version/2/1/code_of_conduct/). Please ensure you read and understand it. We are committed to fostering an open, welcoming, and inclusive environment.
+
+### Ways to Contribute
+- **Reporting Bugs:** If you find a bug, please open an issue on GitHub. Check existing issues first to avoid duplicates. Provide detailed steps to reproduce the bug.
+- **Suggesting Enhancements:** Have an idea for a new feature or an improvement? Open an issue to discuss it.
+- **Writing Code:** Pick an open issue (especially those tagged `help wanted` or `good first issue`) and submit a pull request.
+- **Improving Documentation:** Clear documentation is crucial. Feel free to submit PRs for typos, clarifications, or new sections.
+- **Testing:** Help test new features or verify bug fixes.
+
 ### Getting Started with Development
 
 #### Development Environment Setup
 ```bash
 # 1. Fork and clone the repository
-git clone https://github.com/your-username/VisoLearn-2.git
-cd VisoLearn-2
+git clone https://github.com/your-username/Wisal.git # Update with actual Wisal repo URL
+cd Wisal
 
 # 2. Set up development environment
 python -m venv venv-dev
@@ -2716,13 +3025,32 @@ git push origin feature/your-feature-name
 
 ### Contribution Guidelines
 
+#### Reporting Bugs and Suggesting Features
+- **Check Existing Issues:** Before submitting a new issue, please search existing issues (open and closed) to see if your bug or feature request has already been discussed.
+- **Use GitHub Issues:** Submit bugs and feature requests via GitHub Issues.
+- **Provide Details:**
+    - For bugs: Include steps to reproduce, expected behavior, actual behavior, Wisal version, OS, and any relevant logs or screenshots.
+    - For features: Clearly describe the proposed enhancement, the problem it solves, and any potential use cases.
+
+#### Making Changes (Pull Requests)
+1.  **Fork & Branch:** Fork the repository and create a new feature branch from `main` (or the relevant development branch) for your changes: `git checkout -b feature/your-amazing-feature`.
+2.  **Develop:** Make your changes, adhering to the code style and documentation standards.
+3.  **Test:** Write and run tests for your changes. Ensure all existing tests pass.
+4.  **Lint & Format:** Run linters and formatters (e.g., Black, Flake8, MyPy) as configured for the project.
+5.  **Commit:** Write clear, concise commit messages.
+6.  **Pull Request:** Push your branch to your fork and open a pull request against the main Wisal repository.
+    - Reference any relevant issues in your PR description (e.g., "Fixes #123").
+    - Ensure your PR passes all automated checks (CI).
+    - Fill out the PR template if one is provided.
+    - Be prepared to discuss your changes and make adjustments based on feedback.
+
 #### Code Style Standards
 ```python
 # code_style_guide.py
 """
-VisoLearn-2 Code Style Guide
+Wisal Code Style Guide
 
-This module demonstrates the coding standards for VisoLearn-2
+This module demonstrates the coding standards for Wisal
 """
 
 from typing import Dict, List, Optional, Union, Any
@@ -2733,7 +3061,7 @@ logger = logging.getLogger(__name__)
 
 class ExampleClass:
     """
-    Example class following VisoLearn-2 standards
+    Example class following Wisal standards
 
     Attributes:
         config: Configuration dictionary
@@ -2808,7 +3136,7 @@ class ExampleClass:
 ```python
 # documentation_standards.py
 """
-Documentation Standards for VisoLearn-2
+Documentation Standards for Wisal
 
 All functions, classes, and modules must include comprehensive documentation
 following Google-style docstrings.
@@ -2823,7 +3151,7 @@ def comprehensive_function_example(
     Comprehensive example of function documentation
 
     This function demonstrates the complete documentation standard
-    for VisoLearn-2, including parameter types, return values,
+    for Wisal, including parameter types, return values,
     examples, and error handling.
 
     Args:
@@ -3022,7 +3350,7 @@ class ResearchFramework:
 
 #### For Educators
 ```markdown
-# VisoLearn-2 Classroom Implementation Guide
+# Wisal Classroom Implementation Guide
 
 ## Getting Started in Educational Settings
 
@@ -3055,20 +3383,20 @@ class ResearchFramework:
 
 #### For Therapists
 ```markdown
-# VisoLearn-2 Therapeutic Implementation Guide
+# Wisal Therapeutic Implementation Guide
 
 ## Clinical Integration
 
 ### Assessment Integration
-- Use VisoLearn-2 data to inform IEP goals
+- Use Wisal data to inform IEP goals
 - Track progress toward communication objectives
 - Document skill generalization across settings
 - Monitor engagement and motivation levels
 
 ### Intervention Planning
-- Align VisoLearn-2 activities with treatment goals
+- Align Wisal activities with treatment goals
 - Use generated content in therapy sessions
-- Practice skills learned in VisoLearn-2 in natural contexts
+- Practice skills learned in Wisal in natural contexts
 - Collaborate with families for home implementation
 
 ### Data Collection
@@ -3082,7 +3410,7 @@ class ResearchFramework:
 
 #### Key Research Papers
 ```markdown
-# Research Foundation for VisoLearn-2
+# Research Foundation for Wisal
 
 ## Visual Learning in Autism
 - **Grandin, T. (2009)**. "Visual Thinking and Autism Spectrum Disorders"
@@ -3115,12 +3443,12 @@ class ResearchFramework:
 # training_modules.py
 PROFESSIONAL_DEVELOPMENT = {
     "module_1_introduction": {
-        "title": "Understanding VisoLearn-2 and Autism Education",
+        "title": "Understanding Wisal and Autism Education",
         "duration": "2 hours",
         "objectives": [
             "Understand autism spectrum characteristics",
             "Learn visual learning principles",
-            "Navigate VisoLearn-2 interface",
+            "Navigate Wisal interface",
             "Identify appropriate use cases"
         ],
         "activities": [
@@ -3131,7 +3459,7 @@ PROFESSIONAL_DEVELOPMENT = {
         ]
     },
     "module_2_implementation": {
-        "title": "Implementing VisoLearn-2 in Educational Settings",
+        "title": "Implementing Wisal in Educational Settings",
         "duration": "3 hours",
         "objectives": [
             "Plan effective learning sessions",
@@ -3165,152 +3493,86 @@ PROFESSIONAL_DEVELOPMENT = {
 }
 ```
 
+### Method 4: Kubernetes Deployment (Advanced)
+
+For large-scale, resilient deployments, Kubernetes (K8s) offers powerful orchestration capabilities. While a full K8s setup is beyond the scope of this README, here are some general considerations:
+
+- **Containerization:** Use the provided `Dockerfile` as a base for your container image.
+- **Configuration Management:** Utilize ConfigMaps and Secrets for managing application configuration and sensitive data like API keys.
+- **Service Discovery:** Define K8s Services to expose the Wisal application.
+- **Ingress Controllers:** Use Ingress controllers (e.g., Nginx Ingress, Traefik) for managing external access and SSL termination.
+- **Scalability:** Implement Horizontal Pod Autoscalers (HPA) to automatically scale the number of application pods based on CPU/memory usage.
+- **Persistence:** If using features that require persistent storage (e.g., local story saving, detailed analytics DB if not external), configure PersistentVolumeClaims (PVCs) and PersistentVolumes (PVs).
+- **Logging & Monitoring:** Integrate with a centralized logging solution (e.g., EFK stack - Elasticsearch, Fluentd, Kibana) and monitoring tools (e.g., Prometheus, Grafana).
+
+A typical approach involves creating Kubernetes manifest files (YAML) for Deployments, Services, ConfigMaps, Secrets, and Ingress resources. Tools like Helm can simplify the management of K8s applications.
+
 ---
 
 ## 🗺️ Enterprise Roadmap & Innovation Pipeline
 
-### Short-Term Goals (Q1-Q2 2024)
+This roadmap outlines the planned evolution of Wisal, focusing on enterprise capabilities, therapeutic advancements, and community growth.
 
-#### Version 2.2 Enterprise Features
-- **Advanced AI Models**: GPT-4 Vision integration for enhanced image analysis
-- **Real-time Collaboration**: Multi-user learning sessions with live instructor support
-- **Enterprise SSO**: Complete Active Directory and SAML 2.0 integration
-- **Advanced Analytics**: Predictive learning analytics with ML-powered insights
-- **Mobile Enterprise App**: Native iOS/Android apps with offline capabilities
-- **API Gateway**: RESTful APIs for enterprise integrations
-- **White-label Solutions**: Customizable branding for institutional deployments
-```python
-version_2_2_features = {
-    "enhanced_accessibility": {
-        "priority": "critical",
-        "features": [
-            "Voice interaction capabilities",
-            "Improved screen reader support",
-            "Customizable sensory settings",
-            "Simplified interface mode"
-        ],
-        "timeline": "Q1 2024"
-    },
-    "therapeutic_modules": {
-        "priority": "high",
-        "features": [
-            "Social skills training module",
-            "Emotion regulation activities",
-            "Executive function tools",
-            "Sensory integration exercises"
-        ],
-        "timeline": "Q2 2024"
-    },
-    "enhanced_analytics": {
-        "priority": "medium",
-        "features": [
-            "Predictive learning analytics",
-            "Intervention recommendation engine",
-            "Progress forecasting",
-            "Comparative effectiveness analysis"
-        ],
-        "timeline": "Q2 2024"
-    }
-}
+```mermaid
+gantt
+    dateFormat  YYYY-MM-DD
+    title Wisal Enterprise Roadmap
+    excludes    weekends
+    axisFormat  %Y-%m
+
+    section Short-Term (Version 2.2 Focus)
+    Enhanced Accessibility (Voice, Screen Reader) :crit, a1, 2024-01-01, 2024-03-31
+    Therapeutic Modules (Social, Emotion, Exec Fn):a2, 2024-02-01, 2024-06-30
+    Advanced AI Models (GPT-4 Vision)          :a3, 2024-01-15, 2024-04-30
+    Real-time Collaboration                    :a4, 2024-03-01, 2024-06-30
+    Enterprise SSO (AD, SAML)                  :a5, 2024-04-01, 2024-07-31
+    Predictive Learning Analytics              :a6, 2024-05-01, 2024-08-31
+    Mobile Enterprise App (iOS/Android POC)    :a7, 2024-06-01, 2024-09-30
+
+    section Medium-Term (Version 3.0 Focus)
+    AI-Powered Virtual Therapist (POC)         :b1, 2024-07-01, 2024-12-31
+    Multi-language Support (Spanish, French)   :b2, 2024-08-01, 2025-02-28
+    Augmented Reality Learning (Research)      :b3, 2024-09-01, 2025-03-31
+    Blockchain Credentialing (Feasibility)     :b4, 2024-10-01, 2025-01-31
+    Advanced Biometric Integration (Research)  :b5, 2025-01-01, 2025-06-30
+    Enterprise Data Lake Integration           :b6, 2025-03-01, 2025-08-31
+    Federated Learning Framework (Alpha)       :b7, 2025-04-01, 2025-09-30
+
+    section Long-Term Vision (2025+)
+    Quantum-Enhanced AI (Exploration)          :c1, 2025-07-01, 2026-06-30
+    Metaverse Learning Environments (Concept)  :c2, 2025-09-01, 2026-08-31
+    Brain-Computer Interface (Research)        :c3, 2026-01-01, 2027-12-31
+    Global Learning Network Platform           :c4, 2026-06-01, onwards
+
+    section Community & Open Source
+    Developer Ecosystem (Plugins, APIs)        :d1, 2024-04-01, 2024-12-31
+    Accessibility Grants Program               :d2, 2024-07-01, onwards
+    University Research Partnerships           :d3, 2024-06-01, onwards
 ```
 
-### Medium-Term Goals (Q3 2024 - Q2 2025)
+### Key Focus Areas:
 
-#### Version 3.0 Revolutionary Release
-- **AI-Powered Virtual Therapist**: Advanced conversational AI for personalized support
-- **Augmented Reality Learning**: AR-based immersive learning experiences
-- **Blockchain Credentialing**: Secure, verifiable learning achievement certificates
-- **Advanced Biometric Integration**: Eye-tracking and physiological response monitoring
-- **Multi-language Support**: 15+ languages with cultural adaptation
-- **Enterprise Data Lake**: Advanced analytics with big data processing
-- **Federated Learning**: Privacy-preserving collaborative AI improvements
-```python
-version_3_0_features = {
-    "multi_language_support": {
-        "languages": ["Spanish", "French", "Mandarin", "Arabic"],
-        "features": [
-            "Localized content generation",
-            "Cultural adaptation algorithms",
-            "Multi-language evaluation",
-            "Regional therapeutic approaches"
-        ]
-    },
-    "collaborative_features": {
-        "multi_user_sessions": "Real-time collaboration",
-        "educator_dashboard": "Comprehensive classroom management",
-        "parent_portal": "Home-school coordination",
-        "therapeutic_team_tools": "Interdisciplinary collaboration"
-    },
-    "mobile_applications": {
-        "ios_app": "Native iOS application",
-        "android_app": "Native Android application",
-        "offline_mode": "Offline functionality",
-        "sync_capabilities": "Cross-platform synchronization"
-    }
-}
-```
+#### Short-Term Goals (Q1-Q2 2024 - V2.2 Foundation)
+-   **Critical Accessibility Enhancements**: Implementing voice interaction, improving screen reader support, and adding customizable sensory settings.
+-   **Core Therapeutic Modules**: Rolling out initial versions of modules for social skills training, emotion regulation, and executive function.
+-   **AI Advancement**: Integrating models like GPT-4 Vision for superior image analysis.
+-   **Collaboration & Enterprise Readiness**: Introducing real-time collaboration features and foundational enterprise needs like SSO.
 
-### Long-Term Vision (2025+)
+#### Medium-Term Goals (Q3 2024 - Q2 2025 - V3.0 Innovation)
+-   **Next-Gen AI Interaction**: Developing a Proof-of-Concept for an AI-Powered Virtual Therapist.
+-   **Global Reach**: Expanding multi-language support.
+-   **Immersive Learning Research**: Investigating Augmented Reality applications and advanced biometric feedback.
+-   **Enterprise Data Capabilities**: Integrating with enterprise data lakes and exploring federated learning.
 
-#### Next-Generation Innovation
-- **Quantum-Enhanced AI**: Quantum computing integration for complex pattern recognition
-- **Metaverse Learning Environments**: Virtual reality social learning spaces
-- **Brain-Computer Interface**: Direct neural feedback for optimized learning
-- **Digital Twin Technology**: Personalized AI replicas for continuous learning optimization
-- **Global Learning Network**: Worldwide collaborative learning ecosystem
-- **Autonomous Therapeutic Agents**: Self-improving AI therapy assistants
-- **Precision Medicine Integration**: Genomics-based personalized learning approaches
-```python
-long_term_vision = {
-    "ai_personalization_engine": {
-        "description": "Advanced AI that learns each user's unique needs",
-        "capabilities": [
-            "Individual learning style adaptation",
-            "Predictive intervention recommendations",
-            "Automatic difficulty optimization",
-            "Personalized content generation"
-        ]
-    },
-    "virtual_reality_integration": {
-        "description": "Immersive VR experiences for social learning",
-        "applications": [
-            "Virtual social scenarios",
-            "Immersive story experiences",
-            "Safe practice environments",
-            "Sensory regulation spaces"
-        ]
-    },
-    "research_platform": {
-        "description": "Comprehensive research and development platform",
-        "features": [
-            "Large-scale intervention studies",
-            "Machine learning insights",
-            "Evidence-based recommendations",
-            "Global autism education network"
-        ]
-    }
-}
-```
+#### Long-Term Vision (2025+)
+-   **Pioneering Technologies**: Exploring cutting-edge technologies like Quantum AI, Metaverse environments, and Brain-Computer Interfaces.
+-   **Ecosystem Growth**: Building a global learning network and fostering a rich developer ecosystem.
 
-### Community Roadmap
+#### Community Roadmap
+-   **Developer Ecosystem**: Focus on building a robust plugin system, comprehensive APIs, a marketplace for shared content, and a developer certification program.
+-   **Global Initiative**: Launching accessibility grants, fostering university research partnerships, expanding educator training, and advocating for autism education policies.
 
-#### Open Source Milestones
-```python
-community_milestones = {
-    "developer_ecosystem": {
-        "plugin_system": "Third-party extension support",
-        "api_platform": "Comprehensive developer APIs",
-        "marketplace": "Community-created content sharing",
-        "certification_program": "Developer certification system"
-    },
-    "global_initiative": {
-        "accessibility_grants": "Funding for underserved communities",
-        "research_partnerships": "University collaboration network",
-        "educator_training": "Global professional development",
-        "policy_advocacy": "Autism education policy influence"
-    }
-}
-```
+*(The Python dictionary representations of roadmap items have been removed to avoid redundancy with the Gantt chart and textual summary.)*
 
 ---
 
@@ -3321,7 +3583,7 @@ community_milestones = {
 ```
 MIT License
 
-Copyright (c) 2024 VisoLearn-2 Contributors
+Copyright (c) 2024 Wisal Contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -3364,7 +3626,7 @@ in support of individuals with autism spectrum disorder. Additional terms:
    free of charge for direct educational purposes.
 
 5. ATTRIBUTION REQUIREMENT: Publications or presentations using this software
-   should include appropriate attribution to the VisoLearn-2 project.
+   should include appropriate attribution to the Wisal project.
 ```
 
 ---
@@ -3415,7 +3677,7 @@ in support of individuals with autism spectrum disorder. Additional terms:
 ### Educational & Therapeutic Professionals
 
 #### Special Education Leaders
-- Teachers using VisoLearn-2 in classroom settings
+- Teachers using Wisal in classroom settings
 - Special education coordinators providing implementation guidance
 - Curriculum specialists ensuring educational alignment
 - Technology integration specialists

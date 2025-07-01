@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  visolearn:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "7860:7860"
+    volumes:
+      # Mount local data for persistence if needed, e.g., for local_storage
+      # - ./data:/app/data
+      # Mount your config.py if you want to manage it outside the container
+      # - ./config.py:/app/config.py
+      # Mount environment variables file
+      - ./.env:/app/.env
+    environment:
+      # Pass API keys and other configurations as environment variables
+      # These can also be set in the .env file
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - DEBUG=${DEBUG:-False}
+      - GRADIO_SERVER_NAME=0.0.0.0 # Necessary to access from outside the container
+      # Add other environment variables as needed
+    restart: unless-stopped
+    # Add healthcheck if your app supports it
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:7860"] # Adjust if Gradio has a health endpoint
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
+    #   start_period: 60s
+
+# Optional: Define named volumes for persistent data
+# volumes:
+#   visolearn_data:
+#     driver: local
