@@ -326,40 +326,25 @@ graph TD
 </p>
 
 #### Detailed Layered Architecture
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    VisoLearn-2 Architecture                 │
-├─────────────────────────────────────────────────────────────┤
-│  Frontend Layer (Gradio + Custom CSS/JS)                   │
-│  ├── Image Description Interface                           │
-│  ├── Comic Story Generator Interface                       │
-│  ├── Analytics Dashboard                                   │
-│  └── Settings & Configuration                              │
-├─────────────────────────────────────────────────────────────┤
-│  Application Layer (Python)                                │
-│  ├── Session Management                                    │
-│  ├── State Management                                      │
-│  ├── File Operations                                       │
-│  └── Visualization Utils                                   │
-├─────────────────────────────────────────────────────────────┤
-│  AI Integration Layer                                       │
-│  ├── OpenAI GPT-4 (Image Generation)                      │
-│  ├── Google Gemini (Text Processing)                      │
-│  ├── Custom Evaluation Engine                             │
-│  └── Comic Analysis Pipeline                              │
-├─────────────────────────────────────────────────────────────┤
-│  Computer Vision Layer                                      │
-│  ├── OpenCV Panel Detection                               │
-│  ├── Image Processing (PIL/Pillow)                        │
-│  ├── Quality Assessment                                   │
-│  └── Layout Optimization                                  │
-├─────────────────────────────────────────────────────────────┤
-│  Data Layer                                                │
-│  ├── Local File System                                    │
-│  ├── Google Drive API                                     │
-│  ├── Session Persistence                                  │
-│  └── Analytics Storage                                    │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    subgraph "Frontend Layer (Gradio + Custom CSS/JS)"
+        A["- Image Description Interface<br>- Comic Story Generator Interface<br>- Analytics Dashboard<br>- Settings & Configuration"]
+    end
+    subgraph "Application Layer (Python)"
+        B["- Session Management<br>- State Management<br>- File Operations<br>- Visualization Utils"]
+    end
+    subgraph "AI Integration Layer"
+        C["- OpenAI GPT-4 (Image Generation)<br>- Google Gemini (Text Processing)<br>- Custom Evaluation Engine<br>- Comic Analysis Pipeline"]
+    end
+    subgraph "Computer Vision Layer"
+        D["- OpenCV Panel Detection<br>- Image Processing (PIL/Pillow)<br>- Quality Assessment<br>- Layout Optimization"]
+    end
+    subgraph "Data Layer"
+        E["- Local File System<br>- Google Drive API<br>- Session Persistence<br>- Analytics Storage"]
+    end
+
+    A --> B --> C --> D --> E
 ```
 
 ### Core Technologies
@@ -1552,6 +1537,41 @@ week",
 ```
 
 ### Enterprise Analytics Intelligence Suite
+
+```mermaid
+graph TD
+    EA[Enterprise Analytics Intelligence Suite]
+
+    subgraph "Performance & Progress Tracking"
+        EA --> A("Progress Timeline Chart")
+        EA --> B("Skill Development Radar")
+        EA --> C("Learning Velocity Chart")
+        EA --> D("Comparative Performance Matrix")
+        EA --> E("Adaptive Difficulty Flow")
+    end
+
+    subgraph "Engagement & Interaction Analysis"
+        EA --> F("Engagement Analytics Dashboard")
+        EA --> G("Multi-Modal Learning Analysis")
+        EA --> H("Real-Time Performance Gauge")
+    end
+
+    subgraph "High-Level Reporting"
+        EA --> I("Enterprise Intelligence Report")
+        EA --> J("Clinical Outcomes Dashboard")
+        EA --> K("Therapeutic Progress Report")
+        EA --> L("Enterprise Performance KPIs")
+    end
+
+    subgraph "Advanced Analysis"
+        EA --> M("Longitudinal Outcome Trends")
+    end
+
+    subgraph "Flexibility"
+        EA --> N("Custom Visualization")
+    end
+```
+
 ```python
 class EnterpriseAnalyticsEngine:
     """
