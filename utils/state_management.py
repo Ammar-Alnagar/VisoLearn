@@ -5,11 +5,16 @@ import math
 from models.prompt_generation import generate_prompt_from_options
 from models.image_generation import generate_image_fn, global_image_data_url, global_image_description
 from models.evaluation import generate_detailed_description, extract_key_details, compare_details_chat_fn, parse_evaluation, update_checklist
-import os
-from utils.migrations import migrate_chat_history_format
 
+def speak_text(text):
+    """
+    Placeholder function for text-to-speech functionality.
+    Currently not implemented but referenced in the code.
+    """
+    # This is intentionally left empty since we're not using text-to-speech
+    pass
 
-def generate_image_and_reset_chat(age, autism_level, topic_focus, treatment_plan, attempt_limit_input, details_threshold_input, active_session, saved_sessions, image_style):
+def generate_image_and_reset_chat(age, autism_level, topic_focus, treatment_plan, attempt_limit_input, active_session, saved_sessions, image_style):
     """
     Generate a new image (with the current difficulty) and reset the chat.
     Also resets the attempt count and uses the user-entered attempt limit and details threshold.
@@ -19,9 +24,6 @@ def generate_image_and_reset_chat(age, autism_level, topic_focus, treatment_plan
 
     new_sessions = saved_sessions.copy()
     if active_session.get("prompt"):
-        # Migrate chat history before saving
-        if "chat" in active_session:
-            active_session["chat"] = migrate_chat_history_format(active_session["chat"])
         new_sessions.append(active_session)
 
     current_difficulty = active_session.get("difficulty", "Very Simple")
@@ -33,7 +35,7 @@ def generate_image_and_reset_chat(age, autism_level, topic_focus, treatment_plan
     # Check if image generation was successful
     if image is None:
         # Handle the error - return appropriate message or default image
-        return None, active_session, new_sessions, [], active_session.get("chat", [])
+        return None, active_session, new_sessions, []
 
     # Convert the image to a data URL if it's a PIL Image
     if hasattr(image, 'save'):  # This is a PIL Image
@@ -52,17 +54,14 @@ def generate_image_and_reset_chat(age, autism_level, topic_focus, treatment_plan
     global_image_description = image_description
     key_details = extract_key_details(image, generated_prompt, topic_focus)
 
-    # Convert details_threshold_input to a percentage if it's greater than 1, or keep as is if it's 0-1
-    details_threshold = float(details_threshold_input) if details_threshold_input else 0.7
-    if details_threshold > 1:
-        details_threshold = details_threshold / 100.0  # Convert from percentage to decimal
-    details_threshold = max(0.1, min(1.0, details_threshold))  # Ensure between 0.1 and 1.0
+    # Hardcode details_threshold to a sensible default since the UI slider was removed
+    details_threshold = 0.7
 
     new_active_session = {
         "prompt": generated_prompt,
         "image": image_data_url,  # Use the data URL
         "image_description": image_description,
-        "chat": [],  # Start with empty chat
+        "chat": [],
         "treatment_plan": treatment_plan,
         "topic_focus": topic_focus,
         "key_details": key_details,
@@ -77,50 +76,40 @@ def generate_image_and_reset_chat(age, autism_level, topic_focus, treatment_plan
         "image_style": image_style
     }
 
-    # Add the welcome message only if this is the first session
-    if not saved_sessions and not active_session.get("prompt"):
-        new_active_session["chat"] = [{"role": "assistant", "content": "Hi, I Am Wisal , It's nice to meet you! let's get started and find out what you can see in this image."}]
-
     checklist_items = []
     for i, detail in enumerate(key_details):
         checklist_items.append({"detail": detail, "identified": False, "id": i})
 
-    # Return the chat history along with other data
-    return image, new_active_session, new_sessions, checklist_items, new_active_session["chat"]
+    return image, new_active_session, new_sessions, checklist_items
 
 def chat_respond(user_message, active_session, saved_sessions, checklist):
     """
     Process a chat message with improved state management when advancing levels.
     """
-    # Migrate chat history to new format if needed
-    if "chat" in active_session:
-        active_session["chat"] = migrate_chat_history_format(active_session["chat"])
-
     if not active_session.get("image"):
         bot_message = "Please generate an image first."
-        updated_chat = active_session.get("chat", []) + [{"role": "user", "content": user_message}, {"role": "assistant", "content": bot_message}]
+        updated_chat = active_session.get("chat", []) + [("Child", user_message), ("Teacher", bot_message)]
         active_session["chat"] = updated_chat
+        # Speak the response
+        speak_text(bot_message)
         return "", updated_chat, saved_sessions, active_session, checklist, None
 
     # Get the current image for display
     current_image = None
     try:
-        image_data = active_session.get("image")
-        if image_data:
-            if image_data.startswith("data:image"):
-                # Handle data URL
-                base64_img = image_data.split(",")[1]
-                img_bytes = base64.b64decode(base64_img)
-                current_image = Image.open(io.BytesIO(img_bytes))
-            elif os.path.exists(image_data):
-                # Handle file path
-                current_image = Image.open(image_data)
+        if active_session.get("image") and active_session.get("image").startswith("data:image"):
+            base64_img = active_session.get("image").split(",")[1]
+            img_bytes = base64.b64decode(base64_img)
+            current_image = Image.open(io.BytesIO(img_bytes))
     except Exception as e:
-        print(f"Error loading image: {str(e)}")
+        print(f"Error converting data URL to image: {str(e)}")
 
     # Get evaluation of the child's message
     raw_evaluation = compare_details_chat_fn(user_message, active_session, active_session.get("image"), active_session.get("image_description"))
     feedback, updated_difficulty, should_advance, newly_identified, score = parse_evaluation(raw_evaluation, active_session)
+
+    # Speak the feedback to the student
+    speak_text(feedback)
 
     if not newly_identified:
         active_session["attempt_count"] = active_session.get("attempt_count", 0) + 1
@@ -129,7 +118,7 @@ def chat_respond(user_message, active_session, saved_sessions, checklist):
     updated_checklist = update_checklist(checklist, newly_identified, active_session.get("key_details", []))
 
     # Update the conversation history
-    updated_chat = active_session.get("chat", []) + [{"role": "user", "content": user_message}, {"role": "assistant", "content": feedback}]
+    updated_chat = active_session.get("chat", []) + [("Child", user_message), ("Teacher", feedback)]
     active_session["chat"] = updated_chat
 
     # Check if the threshold has been reached
@@ -165,7 +154,7 @@ def chat_respond(user_message, active_session, saved_sessions, checklist):
         autism_level = active_session.get("autism_level", "Level 1")
         topic_focus = active_session.get("topic_focus", "")
         treatment_plan = active_session.get("treatment_plan", "")
-        image_style = active_session.get("image_style", "Realistic")
+        image_style = active_session.get("image_style", "Photorealistic")
 
         # Determine the difficulty level for the new session
         if threshold_reached or should_advance:
@@ -185,7 +174,9 @@ def chat_respond(user_message, active_session, saved_sessions, checklist):
         if image is None:
             # Handle the error - use a placeholder message
             advancement_message = "There was an issue generating a new image. Please try again."
-            updated_chat.append({"role": "system", "content": advancement_message})
+            updated_chat.append(("System", advancement_message))
+            # Speak the advancement message
+            speak_text(advancement_message)
             return "", updated_chat, new_sessions, active_session, updated_checklist, current_image
 
         # Convert the image to a data URL if it's a PIL Image
@@ -243,12 +234,14 @@ def chat_respond(user_message, active_session, saved_sessions, checklist):
             advancement_message = "Let's try a new image!"
 
         # Add the advancement message to the chat history
-        new_active_session["chat"] = [{"role": "system", "content": advancement_message}]
+        new_active_session["chat"] = [("System", advancement_message)]
+        # Speak the advancement message
+        speak_text(advancement_message)
 
         print(f"New session created with {len(key_details)} key details at {difficulty_to_use} difficulty")
 
         # Return everything for the UI update with the new image
-        return "", new_active_session["chat"], new_sessions, new_checklist, image
+        return "", new_active_session["chat"], new_sessions, new_active_session, new_checklist, image
 
     # If not generating a new image, return the updated state
     return "", updated_chat, saved_sessions, active_session, updated_checklist, current_image
@@ -260,28 +253,3 @@ def update_sessions(saved_sessions, active_session):
     if active_session and active_session.get("prompt"):
         return saved_sessions + [active_session]
     return saved_sessions
-
-
-
-def load_checklist_from_session(active_session):
-    """
-    Generate checklist items from a loaded session
-
-    Args:
-        active_session: The loaded active session data
-
-    Returns:
-        list: Checklist items with identified status
-    """
-    if not active_session or not active_session.get("key_details"):
-        return []
-
-    key_details = active_session.get("key_details", [])
-    identified_details = active_session.get("identified_details", [])
-
-    checklist_items = []
-    for i, detail in enumerate(key_details):
-        identified = detail in identified_details
-        checklist_items.append({"detail": detail, "identified": identified, "id": i})
-
-    return checklist_items

@@ -7,54 +7,35 @@ from google.ai.generativelanguage import Content, Part
 import PIL.Image
 import io
 
-def generate_detailed_description(image_input, prompt, difficulty, topic_focus):
+def generate_detailed_description(image, story_prompt, topic_focus):
     """
-    Generate a detailed description of the image using Gemini Vision.
+    Generate a detailed textual description of a comic image using Gemini Vision Pro.
+    The prompt is now standardized for moderate complexity.
     """
-    # Check if image_input is None or empty
-    if image_input is None:
-        return "Error: No image provided. Please make sure an image is generated or uploaded first."
-
     try:
-        # Convert the image to base64 format depending on the input type
-        if hasattr(image_input, 'save'):  # This is a PIL Image
-            buffer = io.BytesIO()
-            image_input.save(buffer, format="PNG")
-            img_bytes = buffer.getvalue()
-            base64_img = base64.b64encode(img_bytes).decode('utf-8')
-        elif isinstance(image_input, str) and image_input.startswith('data:image'):
-            # This is a data URL
-            base64_img = image_input.split(",")[1]
-        else:
-            return "Error: Unsupported image format"
+        model = GenerativeModel("gemini-2.0-flash-001")
 
-        query = (
-            f"""
-            You are an expert educator specializing in teaching users with autism.
-            Please provide a detailed description of this image that was generated based on the prompt:
-            "{prompt}"
-            The image is intended for a person with autism, focusing on the topic: "{topic_focus}" at a {difficulty} difficulty level.
-            In your description:
-            1. List all key objects, characters, and elements present in the image
-            2. Describe colors, shapes, positions, and relationships between elements
-            3. Note any emotions, actions, or interactions depicted
-            4. Highlight details that would be important for the child to notice
-            5. Organize your description in a structured, clear way
-            6. Dont generate a certain style , use the topic of focus to guide your descriptions
-            Your description will be used as a reference to evaluate the child's observations,
-            so please be comprehensive but focus on observable details rather than interpretations.
-            """
-        )
-        vision_model = GenerativeModel('gemini-2.5-flash')
-        image_part = Part(inline_data={"mime_type": "image/png", "data": base64.b64decode(base64_img)})
-        text_part = Part(text=query)
-        multimodal_content = Content(parts=[image_part, text_part])
-        response = vision_model.generate_content(multimodal_content)
-        return response.text.strip()
+        # Standardized prompt focusing on moderate complexity
+        prompt = f"""
+Analyze the following comic image, which is based on the theme: '{story_prompt}'.
+
+The target audience is children, and the educational focus is on '{topic_focus}'. Please provide a detailed, family-friendly description of what you see.
+
+Your description should be:
+- Comprehensive: Cover the main characters, setting, and key actions across all panels.
+- Clear and Simple: Use language that is easy for a child to understand.
+- Objective: Describe what is visually present in the image.
+- Structured: Organize the description logically, perhaps by panels or a general overview.
+
+Focus on creating a single, cohesive narrative that ties all the visual elements together into a simple story.
+"""
+
+        response = model.generate_content([prompt, image])
+
+        return response.text
     except Exception as e:
-        print(f"Error in generate_detailed_description: {str(e)}")
-        return f"Error processing image: {str(e)}. Please try again with a valid image."
-
+        print(f"Error during detailed description generation: {e}")
+        return "Could not generate a detailed description for the image."
 
 def extract_key_details(image_input, prompt, topic_focus):
     """
@@ -80,22 +61,64 @@ def extract_key_details(image_input, prompt, topic_focus):
 
         query = (
             f"""
-            You are analyzing an educational image created for a person with autism, based on the prompt: "{prompt}".
+            You are analyzing a COMPLEX MULTI-SCENE educational image created for a person with autism, based on the prompt: "{prompt}".
             The image focuses on the topic: "{topic_focus}".
-            Please extract a list of unique key details that a person might identify in this image minimum 5 , max 15 depending on the image.
-            Each detail should be a simple, clear phrase describing one observable element.
-            Focus on concrete, visible elements rather than abstract concepts.
-            Format your response as a JSON array of strings, each representing one key detail.
-            Example format: ["red ball on the grass", "smiling girl with brown hair", "blue sky with clouds"]
+
+            This image contains 12-15 distinct scenes or vignettes with extensive detail. Your task is to extract a comprehensive list of key details across ALL scenes.
+
+            EXTRACTION REQUIREMENTS:
+            1. SCENE ANALYSIS: Systematically examine each identifiable scene/area in the image (foreground, middle ground, background, left, right, center, top, bottom)
+            2. DETAIL CATEGORIES: Extract details from these categories:
+               - Objects and items (furniture, tools, toys, vehicles, etc.)
+               - People and characters (clothing, expressions, poses, activities)
+               - Animals and creatures (species, colors, actions, positions)
+               - Natural elements (plants, weather, landscapes, water features)
+               - Colors and patterns (specific hues, textures, designs)
+               - Spatial relationships (positioning, size comparisons)
+               - Actions and movements (what's happening, gestures)
+               - Environmental details (lighting, atmosphere, time indicators)
+               - Text or symbols (signs, numbers, letters visible)
+               - Architectural elements (buildings, structures, decorations)
+
+            3. DETAIL QUANTITY: Extract 25-45 unique details (significantly more than simple images due to multi-scene complexity)
+            4. DETAIL SPECIFICITY: Each detail should include:
+               - What it is
+               - Where it's located (which part of image/scene)
+               - Key visual characteristics (color, size, condition)
+
+            5. PROGRESSIVE DIFFICULTY ADAPTATION:
+               - For "Very Simple" difficulty: Focus on basic, obvious elements
+               - For "Simple" difficulty: Include secondary objects and basic relationships
+               - For "Medium" difficulty: Add detailed descriptions and spatial relationships
+               - For "Complex" difficulty: Include subtle details, background elements, and nuanced observations
+               - For "Very Complex" difficulty: Extract fine details, partial objects, reflections, shadows, and complex interactions
+
+            Format your response as a JSON array of strings, each representing one key detail with location context.
+            Example format: ["red wooden toy car in the center foreground", "smiling girl with brown braided hair in the left scene", "fluffy white clouds in the upper right sky", "green oak tree with textured bark in the background left", "yellow sunlight streaming from the top right corner"]
+
             Ensure each detail is:
             1. Directly observable in the image
-            2. Unique (not a duplicate)
-            3. Described in simple, concrete language
-            4. Relevant to what a person would notice
-            5. Avoid duplicates
+            2. Unique and non-redundant
+            3. Described with specific, concrete language
+            4. Includes spatial/scene location context
+            5. Appropriate for autism education (clear, unambiguous)
+            6. Covers multiple scenes/areas of the image
+            7. Ranges from obvious to subtle based on difficulty level
+            8. Uses precise color names and descriptive adjectives
+            9. Includes both primary subjects and supporting elements
+            10. Captures the educational value relevant to "{topic_focus}"
+
+            SYSTEMATIC APPROACH:
+            1. First, identify all major scenes/areas in the image
+            2. For each scene, extract 2-4 key details
+            3. Add cross-scene relationships and overall composition details
+            4. Include environmental and atmospheric details
+            5. Ensure coverage of all visual elements that support learning objectives
+
+            Remember: This is a highly detailed, multi-scene educational image - extract accordingly!
             """
         )
-        vision_model = GenerativeModel('gemini-2.5-flash')
+        vision_model = GenerativeModel('gemini-2.0-flash-001')
         image_part = Part(inline_data={"mime_type": "image/png", "data": base64.b64decode(base64_img)})
         text_part = Part(text=query)
         multimodal_content = Content(parts=[image_part, text_part])
@@ -113,7 +136,7 @@ def extract_key_details(image_input, prompt, topic_focus):
                 for line in lines:
                     if line.strip().startswith('-') or line.strip().startswith('*'):
                         details.append(line.strip()[1:].strip())
-                return details[:15] if details else ["object in image", "color", "shape", "background"]
+                return details[:45] if details else ["object in image", "color", "shape", "background", "foreground element", "scene composition"]
         except Exception as e:
             print(f"Error extracting key details from response: {str(e)}")
             return ["object in image", "color", "shape", "background"]
@@ -160,56 +183,73 @@ def compare_details_chat_fn(user_details, active_session, global_image_data_url,
 
     message_text = (
         f"You are a highly specialized, supportive, and insightful teacher evaluating an image description provided by an individual with autism.\n"
-        f"Your primary goal is to understand if the user has grasped the CONCEPTS present in the image, not just if they used specific words.\n\n"
-        f"### Image Context:\n"
-        f"- Original Prompt: {active_session.get('prompt', 'No prompt available')}\n"
+        f"Your primary goal is to understand if the user has grasped the CONCEPTS present in this COMPLEX MULTI-SCENE educational image, not just if they used specific words.\n\n"
+        f"### COMPLEX IMAGE CONTEXT:\n"
+        f"- Original Enhanced Prompt: {active_session.get('prompt', 'No prompt available')}\n"
         f"- Topic Focus: {active_session.get('topic_focus', 'General Observation')}\n"
+        f"- Multi-Scene Composition: This image contains 12-15 distinct scenes with 25-45 identifiable details\n"
         f"- Detailed Image Description (Reference Only): {image_description}\n\n"
         f"### User Information:\n"
         f"- Age: {age}\n"
         f"- Autism Level: {autism_level}\n"
         f"- Current Difficulty Level: {current_difficulty}\n\n"
-        f"### Learning Task State:\n"
+        f"### COMPLEX LEARNING TASK STATE:\n"
+        f"- Total Key Details Available: {len(key_details)} (distributed across multiple scenes)\n"
+        f"- Details Already Identified: {len(identified_details)}\n"
+        f"- Remaining Details to Find: {len(remaining_key_details)}\n"
         f"{key_details_text}"  # Focus evaluation on REMAINING details
         f"{identified_details_text}"
         f"{used_hints_text}"
         f"{history_text}\n"
         f"### User's Current Description (Analyze this carefully):\n'{user_details}'\n\n"
         "----------------------------------------------------\n"
-        "### YOUR CRITICAL TASK: CONCEPTUAL EVALUATION\n"
-        "Analyze the \"User's Current Description\" and determine which CONCEPTS from the \"Key Details to Identify\" list the user has successfully understood and conveyed, even if their wording is different. Apply the following rules rigorously:\n\n"
-        "### CONCEPTUAL MATCHING RULES (ABSOLUTELY CRITICAL - APPLY WITH EMPATHY):\n"
+        "### YOUR CRITICAL TASK: ENHANCED MULTI-SCENE CONCEPTUAL EVALUATION\n"
+        "Analyze the \"User's Current Description\" and determine which CONCEPTS from the \"Key Details to Identify\" list the user has successfully understood and conveyed across the complex multi-scene composition. Apply the following enhanced rules rigorously:\n\n"
+        "### ENHANCED CONCEPTUAL MATCHING RULES FOR COMPLEX IMAGES:\n"
         "1.  **PRIORITIZE MEANING OVER WORDS:** Focus entirely on the SEMANTIC MEANING and the underlying IDEA the user is trying to express. Ignore exact phrasing, grammar, or spelling mistakes.\n"
-        "2.  **CONCEPTUAL EQUIVALENCE:** Does the user's statement describe the core concept of a key detail? If yes, it's a match. (e.g., Key Detail: 'Smiling boy waving'. User says: 'happy person saying hi' -> MATCHES).\n"
-        "3.  **FLEXIBLE INTERPRETATION:** Individuals with autism may use unique, literal, or roundabout phrasing. Interpret generously. Give the benefit of the doubt. Assume competence and focus on their likely intended meaning.\n"
-        "4.  **PARTIAL CONCEPTS COUNT:** Especially for Level 2/3 autism, younger ages, or simpler difficulty levels, credit partial understanding. (e.g., Key Detail: 'Large red truck'. User says: 'big red thing' -> MATCHES, as they grasped size and color).\n"
-        "5.  **SYNONYMS & DESCRIPTIONS:** Accept synonyms, paraphrasing, or descriptive phrases that capture the essence. (e.g., Key Detail: 'Fluffy white clouds'. User says: 'soft looking things in the sky', 'cotton balls up high' -> MATCHES).\n"
-        "6.  **FOCUS ON OBSERVABLES:** Match based on what the user likely *observed* in the image, linked back to a key detail concept.\n"
-        "7.  **GENEROSITY IS KEY:** When uncertain, ERR ON THE SIDE OF GIVING CREDIT. The goal is encouragement and identifying understanding, not strict grading.\n"
-        "8.  **OUTPUT REQUIREMENT:** If you determine a conceptual match, you MUST include the **EXACT ORIGINAL STRING** from the 'Key Details to Identify' list in the `newly_identified_details` field of your JSON response. DO NOT put the user's words there.\n\n"
+        "2.  **MULTI-SCENE AWARENESS:** Recognize that users may describe elements from different scenes in the same sentence. Credit understanding even if scene locations aren't perfectly specified.\n"
+        "3.  **CONCEPTUAL EQUIVALENCE:** Does the user's statement describe the core concept of a key detail? If yes, it's a match. (e.g., Key Detail: 'Smiling boy waving in left foreground'. User says: 'happy person saying hi' -> MATCHES).\n"
+        "4.  **FLEXIBLE INTERPRETATION:** Individuals with autism may use unique, literal, or roundabout phrasing. Interpret generously. Give the benefit of the doubt. Assume competence and focus on their likely intended meaning.\n"
+        "5.  **PARTIAL CONCEPTS COUNT:** Especially for Level 2/3 autism, younger ages, or simpler difficulty levels, credit partial understanding. (e.g., Key Detail: 'Large red delivery truck in background scene'. User says: 'big red thing far away' -> MATCHES, as they grasped size, color, and spatial awareness).\n"
+        "6.  **SYNONYMS & DESCRIPTIONS:** Accept synonyms, paraphrasing, or descriptive phrases that capture the essence. (e.g., Key Detail: 'Fluffy white cumulus clouds in upper right sky'. User says: 'soft looking things in the sky', 'cotton balls up high' -> MATCHES).\n"
+        "7.  **SCENE INTEGRATION:** Credit users who notice relationships between scenes or overall composition elements, even if not explicitly listed as key details.\n"
+        "8.  **FOCUS ON OBSERVABLES:** Match based on what the user likely *observed* in the image, linked back to a key detail concept.\n"
+        "9.  **PROGRESSIVE COMPLEXITY AWARENESS:** Adjust expectations based on difficulty level - more complex levels should expect more nuanced observations.\n"
+        "10. **GENEROSITY IS KEY:** When uncertain, ERR ON THE SIDE OF GIVING CREDIT. The goal is encouragement and identifying understanding, not strict grading.\n"
+        "11. **OUTPUT REQUIREMENT:** If you determine a conceptual match, you MUST include the **EXACT ORIGINAL STRING** from the 'Key Details to Identify' list in the `newly_identified_details` field of your JSON response. DO NOT put the user's words there.\n"
+        "12. **SCENE CONTEXT AWARENESS:** When providing feedback and hints, reference spatial locations and scene relationships to help guide the user's attention across the complex composition.\n"
+        "13. **PROGRESSIVE DISCLOSURE:** For users who seem overwhelmed by the 25-45 details, focus feedback on smaller areas and suggest manageable next steps.\n\n"
         "### RESPONSE REQUIREMENTS:\n"
-        "Provide your evaluation STRICTLY as a valid JSON object with the following structure:\n"
+        "Provide your evaluation STRICTLY as a valid JSON object with the following ENHANCED structure for multi-scene evaluation:\n"
         "```json\n"
         "{\n"
-        "  \"feedback\": \"(String) Your encouraging, supportive, and specific feedback to the user. Praise what they identified correctly (conceptually). Avoid sounding repetitive. Tailor to age/level.\",\n"
+        "  \"feedback\": \"(String) Your encouraging, supportive, and specific feedback to the user. Praise what they identified correctly (conceptually). Reference which scenes or areas they described. Avoid sounding repetitive. Tailor to age/level. Acknowledge multi-scene awareness.\",\n"
         "  \"newly_identified_details\": [\"(String) Exact key detail 1 matched\", \"(String) Exact key detail 2 matched\"], /* List of EXACT strings from 'Key Details to Identify' that were conceptually matched by the user's LATEST description. Empty list if none matched. */\n"
-        "  \"hint\": \"(String or null) If appropriate, provide ONE gentle, guiding hint towards a concept NOT YET identified. Phrase it as an observation or question, NOT explicitly as a 'hint'. E.g., 'I also see something bright and yellow in the sky...' or 'What is the dog holding?'. If no hint is needed or helpful, use null.\",\n"
-        "  \"score\": 75, /* (Integer 0-100) An overall score reflecting conceptual understanding shown in this turn, considering difficulty and effort. Be generous. */\n"
-        "  \"advance_difficulty\": false /* (Boolean) Set to true ONLY if the user shows strong mastery and most key details are identified, suggesting they are ready for a harder challenge. */\n"
+        "  \"scene_awareness_feedback\": \"(String or null) Specific praise if user showed awareness of multiple scenes, spatial relationships, or composition elements. E.g., 'Great job noticing elements in both the foreground and background!' Use null if not applicable.\",\n"
+        "  \"hint\": \"(String or null) Provide ONE gentle, scene-specific hint towards a concept NOT YET identified. Include spatial guidance. E.g., 'I notice something interesting in the upper left corner...' or 'Look carefully at what's happening near the center of the image...'. Use null if no hint needed.\",\n"
+        "  \"complexity_hint\": \"(String or null) For higher difficulty levels, provide a more nuanced hint about relationships between scenes or subtle details. E.g., 'Notice how the lighting affects different parts of the image...' Use null if not applicable.\",\n"
+        "  \"progress_summary\": \"(String) Brief encouraging summary of overall progress. E.g., 'You've now identified 8 out of 32 details across 4 different scenes - excellent exploration!'\",\n"
+        "  \"score\": 75, /* (Integer 0-100) An overall score reflecting conceptual understanding shown in this turn, considering difficulty and effort. Be generous. Factor in multi-scene complexity. */\n"
+        "  \"detail_categories_identified\": [\"objects\", \"colors\", \"spatial_relationships\"], /* (Array of strings) Categories of details the user successfully identified (objects, people, animals, colors, textures, spatial_relationships, actions, environment, etc.) */\n"
+        "  \"advance_difficulty\": false, /* (Boolean) Set to true ONLY if the user shows strong mastery and significant portion of key details are identified across multiple scenes, suggesting they are ready for a harder challenge. */\n"
+        "  \"suggest_scene_focus\": \"(String or null) If user seems overwhelmed by complexity, suggest a specific scene or area to focus on next. E.g., 'Try focusing on just the left side of the image for now.' Use null if not needed.\"\n"
         "}\n"
         "```\n\n"
-        "### FINAL CHECKLIST BEFORE RESPONDING:\n"
-        "- Did I focus ONLY on conceptual understanding?\n"
-        "- Did I interpret the user's words generously and flexibly?\n"
+        "### ENHANCED FINAL CHECKLIST FOR MULTI-SCENE EVALUATION:\n"
+        "- Did I focus ONLY on conceptual understanding across all scenes?\n"
+        "- Did I interpret the user's words generously and flexibly, considering multi-scene complexity?\n"
         "- Does `newly_identified_details` contain the EXACT STRINGS from the key details list?\n"
-        "- Is the feedback positive, specific, and appropriate?\n"
-        "- Is the hint subtle and guiding (or null)?\n"
-        "- Is the entire response a single, valid JSON object?\n\n"
+        "- Is the feedback positive, specific, scene-aware, and appropriate for the complexity level?\n"
+        "- Are the hints (both regular and complexity) subtle, spatial, and guiding (or null)?\n"
+        "- Did I acknowledge the user's progress across the large number of available details?\n"
+        "- Are the detail categories accurately reflecting what the user identified?\n"
+        "- Is the advancement consideration appropriate for multi-scene mastery?\n"
+        "- Is the entire response a single, valid JSON object with all enhanced fields?\n\n"
         "Now, analyze the user's description based on these instructions and provide the JSON evaluation."
     )
 
     try:
-        model = GenerativeModel('gemini-2.5-flash') # Ensure you are using an appropriate model capable of following complex instructions
+        model = GenerativeModel('gemini-2.0-flash-001-lite-preview-06-17') # Ensure you are using an appropriate model capable of following complex instructions
         response = model.generate_content(message_text)
         # Adding print statements for debugging
         print("--- LLM Evaluation Prompt Sent ---")
@@ -264,8 +304,9 @@ def parse_evaluation(evaluation_text, active_session):
             # Fallback to regex on the entire text if no JSON block found
             evaluation = extract_evaluation_manually(evaluation_text)
 
-        # --- Process Evaluation Data ---
+        # --- Process Enhanced Evaluation Data ---
         feedback = evaluation.get("feedback", "Great job describing what you see! Can you tell me anything else?")
+
         # Ensure newly_identified_details is always a list of strings
         newly_identified_details = evaluation.get("newly_identified_details", [])
         if not isinstance(newly_identified_details, list):
@@ -273,7 +314,14 @@ def parse_evaluation(evaluation_text, active_session):
         # Filter out non-strings or empty strings
         newly_identified_details = [str(detail).strip() for detail in newly_identified_details if isinstance(detail, str) and str(detail).strip()]
 
+        # Extract enhanced fields
+        scene_awareness_feedback = evaluation.get("scene_awareness_feedback")
         hint = evaluation.get("hint") # Allow None/null
+        complexity_hint = evaluation.get("complexity_hint")
+        progress_summary = evaluation.get("progress_summary", "")
+        detail_categories_identified = evaluation.get("detail_categories_identified", [])
+        suggest_scene_focus = evaluation.get("suggest_scene_focus")
+
         score = evaluation.get("score", 0)
         if not isinstance(score, int) or score < 0 or score > 100:
              score = 0 # Default invalid scores
@@ -283,7 +331,12 @@ def parse_evaluation(evaluation_text, active_session):
 
         print(f"Parsed - Feedback: {feedback[:50]}...")
         print(f"Parsed - Newly Identified Details: {newly_identified_details}")
+        print(f"Parsed - Scene Awareness: {scene_awareness_feedback}")
         print(f"Parsed - Hint: {hint}")
+        print(f"Parsed - Complexity Hint: {complexity_hint}")
+        print(f"Parsed - Progress Summary: {progress_summary}")
+        print(f"Parsed - Detail Categories: {detail_categories_identified}")
+        print(f"Parsed - Scene Focus Suggestion: {suggest_scene_focus}")
         print(f"Parsed - Score: {score}")
         print(f"Parsed - Advance Difficulty (LLM): {advance_difficulty}")
 
@@ -299,17 +352,48 @@ def parse_evaluation(evaluation_text, active_session):
         active_session["identified_details"] = identified_details
         print(f"Updated Session - Total Identified Details: {identified_details}")
 
+        # Enhanced feedback construction
+        enhanced_feedback = feedback
+
+        # Add scene awareness feedback if present
+        if scene_awareness_feedback and isinstance(scene_awareness_feedback, str) and scene_awareness_feedback.strip():
+            enhanced_feedback += f" {scene_awareness_feedback}"
+
+        # Add progress summary if present
+        if progress_summary and isinstance(progress_summary, str) and progress_summary.strip():
+            enhanced_feedback += f" {progress_summary}"
+
+        # Determine which hint to use (prioritize complexity hint for higher levels)
+        current_difficulty = active_session.get("difficulty", "Very Simple")
+        selected_hint = None
+
+        if current_difficulty in ["Complex", "Very Complex"] and complexity_hint and isinstance(complexity_hint, str) and complexity_hint.strip():
+            selected_hint = complexity_hint
+        elif hint and isinstance(hint, str) and hint.strip():
+            selected_hint = hint
+
+        # Add scene focus suggestion if user seems overwhelmed
+        if suggest_scene_focus and isinstance(suggest_scene_focus, str) and suggest_scene_focus.strip():
+            if selected_hint:
+                selected_hint += f" {suggest_scene_focus}"
+            else:
+                selected_hint = suggest_scene_focus
+
+        # Store enhanced information in session
+        if detail_categories_identified and isinstance(detail_categories_identified, list):
+            active_session["detail_categories_identified"] = detail_categories_identified
+
         # Manage hints
-        if hint and isinstance(hint, str) and hint.strip():
+        if selected_hint and selected_hint.strip():
             used_hints = active_session.get("used_hints", []).copy()
-            if hint not in used_hints:
-                used_hints.append(hint)
+            if selected_hint not in used_hints:
+                used_hints.append(selected_hint)
                 active_session["used_hints"] = used_hints
                 # Append hint to feedback only if it's new and wasn't already included by LLM
-                if hint not in feedback:
+                if selected_hint not in enhanced_feedback:
                      # Check for common hint phrases LLM might use
-                     if "hint:" not in feedback.lower() and "try looking" not in feedback.lower() and "what about" not in feedback.lower():
-                         feedback += f"\n\n✨ Maybe look closer at: {hint}"
+                     if "hint:" not in enhanced_feedback.lower() and "try looking" not in enhanced_feedback.lower() and "what about" not in enhanced_feedback.lower():
+                         enhanced_feedback += f"\n\n✨ Maybe look closer at: {selected_hint}"
                      else:
                          # If LLM likely included it, don't double-add
                          pass
@@ -350,7 +434,7 @@ def parse_evaluation(evaluation_text, active_session):
 
 
         # Return parsed/processed data
-        return feedback, new_difficulty, should_advance, details_added_this_turn, score
+        return enhanced_feedback, new_difficulty, should_advance, details_added_this_turn, score
 
     except Exception as e:
         print(f"FATAL Error processing evaluation: {str(e)}")
