@@ -4,6 +4,7 @@ import os
 from PIL import Image
 import config
 from google import genai
+from google.genai import types
 from io import BytesIO
 import warnings
 warnings.filterwarnings("ignore", message="IMAGE_SAFETY is not a valid FinishReason")
@@ -13,14 +14,14 @@ global_image_data_url = None
 global_image_prompt = None
 global_image_description = None
 
-def generate_image_fn(selected_prompt, model="models/imagen-4.0-ultra-generate-preview-06-06", output_path=None):
+def generate_image_fn(selected_prompt, model="imagen-3.0-generate-002", output_path=None):
     """
-    Generate an image from the prompt via the Google Imagen 4.0 Ultra API.
+    Generate an image from the prompt via the Google Imagen 3 API.
     Convert the image to a data URL and optionally save it to a file.
 
     Args:
         selected_prompt (str): The prompt to generate the image from.
-        model (str): The Imagen model to use. Defaults to "models/imagen-4.0-ultra-generate-preview-06-06".
+        model (str): The Imagen model to use. Defaults to "imagen-3.0-generate-002".
         output_path (str, optional): If provided, saves the image to this path. Defaults to None.
 
     Returns:
@@ -31,6 +32,7 @@ def generate_image_fn(selected_prompt, model="models/imagen-4.0-ultra-generate-p
 
     try:
         # Initialize Google GenAI client with API key from environment variables or config
+        # Try to get API key from environment first, then from config, and handle missing attribute
         gemini_api_key = os.environ.get("GEMINI_API_KEY")
         if not gemini_api_key:
             try:
@@ -46,15 +48,13 @@ def generate_image_fn(selected_prompt, model="models/imagen-4.0-ultra-generate-p
 
         client = genai.Client(api_key=gemini_api_key)
 
-        # Generate image using Google Imagen 4.0 Ultra
+        # Generate image using Google Imagen 3
         response = client.models.generate_images(
             model=model,
             prompt=selected_prompt,
-            config=dict(
-                number_of_images=1,
-                output_mime_type="image/jpeg",
-                person_generation="ALLOW_ADULT",
-                aspect_ratio="1:1",
+            config=types.GenerateImagesConfig(
+                number_of_images=2,  # Only generate one image
+
             )
         )
 
@@ -81,10 +81,10 @@ def generate_image_fn(selected_prompt, model="models/imagen-4.0-ultra-generate-p
 
         # Convert to base64 for data URL
         buffered = io.BytesIO()
-        image.save(buffered, format="JPEG")  # Changed to JPEG to match output_mime_type
+        image.save(buffered, format="PNG")
         img_bytes = buffered.getvalue()
         img_b64 = base64.b64encode(img_bytes).decode("utf-8")
-        global_image_data_url = f"data:image/jpeg;base64,{img_b64}"  # Changed to jpeg
+        global_image_data_url = f"data:image/png;base64,{img_b64}"
 
         print(f"Successfully generated image with prompt: {selected_prompt[:50]}...")
         return image  # Return the PIL Image object

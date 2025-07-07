@@ -1,229 +1,15 @@
 import math
-import base64
-import io
-import os
-import tempfile
-import uuid
-from PIL import Image, ImageDraw, ImageFont
 
 def update_difficulty_label(active_session):
+    if hasattr(active_session, 'value'):  # Check if it's a State object
+        active_session = active_session.value
     return f"**Current Difficulty:** {active_session.get('difficulty', 'Very Simple')}"
 
-def create_comic_collage(story_session):
-    """
-    Create a comic-style collage of all scene images in the story session.
-    
-    Args:
-        story_session: The story session containing scene images
-        
-    Returns:
-        The path to the saved collage image file
-    """
-    scene_images = story_session.get("scene_images", {})
-    if not scene_images:
-        # Return a placeholder image if no scenes are available
-        placeholder = Image.new('RGB', (800, 400), color=(240, 240, 240))
-        draw = ImageDraw.Draw(placeholder)
-        try:
-            # Try to load a font, fall back to default if not available
-            font = ImageFont.truetype("arial.ttf", 20)
-        except IOError:
-            font = ImageFont.load_default()
-        
-        draw.text((400, 200), "No scene images available", fill=(0, 0, 0), font=font, anchor="mm")
-        return _save_temp_image(placeholder)
-    
-    # Convert data URLs or file paths to PIL Images
-    images = []
-    for scene_num in sorted(scene_images.keys(), key=lambda x: int(x)):
-        image_data = scene_images[scene_num]
-        
-        # Handle different image formats
-        if isinstance(image_data, str):
-            if image_data.startswith('data:image'):
-                # Handle data URL
-                try:
-                    base64_img = image_data.split(",")[1]
-                    img_bytes = base64.b64decode(base64_img)
-                    img = Image.open(io.BytesIO(img_bytes))
-                    images.append(img)
-                except Exception as e:
-                    print(f"Error processing data URL: {e}")
-            elif os.path.exists(image_data):
-                # Handle file path
-                try:
-                    img = Image.open(image_data)
-                    images.append(img)
-                except Exception as e:
-                    print(f"Error opening image file {image_data}: {e}")
-        elif isinstance(image_data, Image.Image):
-            images.append(image_data)
-    
-    if not images:
-        # Return a placeholder image if no valid images were found
-        placeholder = Image.new('RGB', (800, 400), color=(240, 240, 240))
-        draw = ImageDraw.Draw(placeholder)
-        try:
-            font = ImageFont.truetype("arial.ttf", 20)
-        except IOError:
-            font = ImageFont.load_default()
-        
-        draw.text((400, 200), "No valid scene images available", fill=(0, 0, 0), font=font, anchor="mm")
-        return _save_temp_image(placeholder)
-    
-    # Determine the layout based on the number of images
-    num_images = len(images)
-    if num_images <= 2:
-        cols = num_images
-        rows = 1
-    else:
-        cols = min(3, num_images)  # Maximum 3 columns
-        rows = math.ceil(num_images / cols)
-    
-    # Resize images to a consistent size
-    target_width = 500
-    target_height = 500
-    resized_images = []
-    for img in images:
-        # Preserve aspect ratio
-        img = img.copy()  # Create a copy to avoid modifying the original
-        img.thumbnail((target_width, target_height), Image.LANCZOS)
-        
-        # Create a blank canvas with the target dimensions
-        new_img = Image.new('RGB', (target_width, target_height), color=(255, 255, 255))
-        
-        # Paste the resized image centered on the canvas
-        x_offset = (target_width - img.width) // 2
-        y_offset = (target_height - img.height) // 2
-        new_img.paste(img, (x_offset, y_offset))
-        
-        resized_images.append(new_img)
-    
-    # Create the comic layout
-    margin = 20  # Margin between images and around the collage
-    border = 5   # Border width around each image
-    
-    # Calculate the dimensions of the collage
-    collage_width = cols * (target_width + 2 * border) + (cols + 1) * margin
-    collage_height = rows * (target_height + 2 * border) + (rows + 1) * margin
-    
-    # Create a blank canvas for the collage
-    collage = Image.new('RGB', (collage_width, collage_height), color=(240, 240, 240))
-    draw = ImageDraw.Draw(collage)
-    
-    # Place each image in the collage with a border and scene number
-    for i, img in enumerate(resized_images):
-        row = i // cols
-        col = i % cols
-        
-        # Calculate position for this image
-        x = margin + col * (target_width + 2 * border + margin)
-        y = margin + row * (target_height + 2 * border + margin)
-        
-        # Draw a border around the image position
-        draw.rectangle(
-            [(x, y), (x + target_width + 2 * border, y + target_height + 2 * border)],
-            fill=(0, 0, 0)
-        )
-        
-        # Paste the image inside the border
-        collage.paste(img, (x + border, y + border))
-        
-        # Add scene number label
-        try:
-            font = ImageFont.truetype("arial.ttf", 24)
-        except IOError:
-            font = ImageFont.load_default()
-        
-        scene_num = i + 1
-        label_bg_size = 40
-        
-        # Draw a circular background for the scene number
-        draw.ellipse(
-            [(x + 10, y + 10), (x + 10 + label_bg_size, y + 10 + label_bg_size)],
-            fill=(0, 0, 0)
-        )
-        
-        # Draw the scene number
-        draw.text(
-            (x + 10 + label_bg_size // 2, y + 10 + label_bg_size // 2),
-            str(scene_num),
-            fill=(255, 255, 255),
-            font=font,
-            anchor="mm"
-        )
-    
-    # Save the collage to a temporary file and return the path
-    return _save_temp_image(collage)
-
-def _save_temp_image(image):
-    """
-    Save a PIL image to a temporary file with a short name to avoid path length issues.
-    
-    Args:
-        image: PIL Image object to save
-        
-    Returns:
-        Path to the saved temporary file
-    """
-    # Create a temporary directory if it doesn't exist
-    temp_dir = os.path.join(tempfile.gettempdir(), "visolearn_tmp")
-    os.makedirs(temp_dir, exist_ok=True)
-    
-    # Generate a short unique filename
-    filename = f"{uuid.uuid4().hex[:8]}.png"
-    filepath = os.path.join(temp_dir, filename)
-    
-    # Save the image
-    try:
-        image.save(filepath)
-        return filepath
-    except Exception as e:
-        print(f"Error saving temporary image: {e}")
-        # If saving fails, return a placeholder path
-        return ""
-
-def save_comic_collage(story_session, filename=None):
-    """
-    Create and save a comic-style collage of all scene images.
-    
-    Args:
-        story_session: The story session containing scene images
-        filename: Optional filename to save the collage (without extension)
-        
-    Returns:
-        Path to the saved collage file, or None if saving failed
-    """
-    # Get the temporary collage file path
-    temp_filepath = create_comic_collage(story_session)
-    
-    if not temp_filepath:
-        print("Failed to create comic collage")
-        return None
-    
-    if not filename:
-        # Generate a default filename based on timestamp
-        import datetime
-        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"story_collage_{timestamp}"
-    
-    # Ensure the filename has a .png extension
-    if not filename.lower().endswith(".png"):
-        filename += ".png"
-    
-    try:
-        # If the temp file exists, copy it to the desired location
-        if os.path.exists(temp_filepath):
-            # Open and save to the new location
-            img = Image.open(temp_filepath)
-            img.save(filename)
-            return filename
-        return None
-    except Exception as e:
-        print(f"Error saving comic collage: {e}")
-        return None
-
 def update_checklist_html(checklist):
+    # Add this check at the beginning to handle State object
+    if hasattr(checklist, 'value'):  # Check if it's a State object
+        checklist = checklist.value
+
     if not checklist:
         return """
             <div id="checklist-container" style="background-color: #000000; color: #ffffff; padding: 15px; border-radius: 8px;">
@@ -276,6 +62,13 @@ def update_checklist_html(checklist):
     return html_content
 
 def update_progress_html(checklist, active_session):
+    # Add this check at the beginning to handle State object
+    if hasattr(checklist, 'value'):  # Check if it's a State object
+        checklist = checklist.value
+
+    if hasattr(active_session, 'value'):  # Check if it's a State object
+        active_session = active_session.value
+
     if not checklist:
         return """
             <div id="progress-container" style="background-color: #000000; color: #ffffff; padding: 15px; border-radius: 8px;">
@@ -325,6 +118,8 @@ def update_progress_html(checklist, active_session):
     return html_content
 
 def update_attempt_counter(active_session):
+    if hasattr(active_session, 'value'):  # Check if it's a State object
+        active_session = active_session.value
     current_count = active_session.get("attempt_count", 0)
     limit = active_session.get("attempt_limit", 3)
     return f"""

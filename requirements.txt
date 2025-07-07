@@ -1,6 +1,6 @@
-gradio
+gradio==5.35.0
 pillow
-huggingface_hub
+huggingface_hub==0.33.2
 python-dotenv
 google-generativeai==0.8.4
 google-auth-oauthlib==1.2.1
@@ -13,5 +13,3 @@ google-genai==1.8.0
 google-generativeai==0.8.4
 googleapis-common-protos==1.69.2
 openai
-opencv-contrib-python>=4.8.0
-numpy>=1.26.0

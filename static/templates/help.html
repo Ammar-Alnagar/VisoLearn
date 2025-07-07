@@ -1,0 +1,272 @@
+<!-- static/templates/help.html -->
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>VisoLearn - Help Guide</title>
+        <link rel="stylesheet" href="/static/styles.css" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Quicksand:wght@500;700&display=swap"
+            rel="stylesheet"
+        />
+    </head>
+    <body>
+        <header>
+            <div class="container">
+                <h1>VisoLearn Help Guide</h1>
+                <p class="subtitle">
+                    Comprehensive assistance for using the VisoLearn platform
+                </p>
+            </div>
+        </header>
+
+        <main class="container">
+            <section class="visolearn-card">
+                <h2>Getting Started</h2>
+                <p>
+                    Welcome to VisoLearn, an adaptive image education platform
+                    designed to support learning in children with autism
+                    spectrum disorder. This guide will help you navigate the
+                    platform and make the most of its features.
+                </p>
+
+                <h3>Basic Navigation</h3>
+                <ul>
+                    <li>
+                        The main interface is divided into sections for
+                        generating images, interacting with the chatbot, and
+                        tracking progress.
+                    </li>
+                    <li>
+                        Use the controls in the left panel to configure settings
+                        for the child you're working with.
+                    </li>
+                    <li>
+                        The center area displays the generated image and
+                        conversation history.
+                    </li>
+                    <li>
+                        The right panel shows progress tracking and details that
+                        need to be identified.
+                    </li>
+                </ul>
+            </section>
+
+            <section class="visolearn-card">
+                <h2>Generating Educational Images</h2>
+                <ol>
+                    <li>
+                        <strong>Enter the child's information:</strong>
+                        <ul>
+                            <li>Age: Enter the numerical age of the child</li>
+                            <li>
+                                Autism Level: Select Level 1 (requiring
+                                support), Level 2 (requiring substantial
+                                support), or Level 3 (requiring very substantial
+                                support)
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Choose a topic focus:</strong> Enter a specific
+                        subject area you want to target (e.g., "animals",
+                        "emotions", "daily routines")
+                    </li>
+                    <li>
+                        <strong>Add treatment plan details:</strong> Optionally
+                        include specific goals or approaches from the child's
+                        treatment plan
+                    </li>
+                    <li>
+                        <strong>Customize settings:</strong>
+                        <ul>
+                            <li>
+                                Allowed Attempts: How many tries the child gets
+                                before advancing to a new image
+                            </li>
+                            <li>
+                                Details Threshold: Percentage of details needed
+                                to identify before advancing difficulty
+                            </li>
+                            <li>
+                                Image Style: Choose from Realistic,
+                                Illustration, Cartoon, Watercolor, or 3D
+                                Rendering
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Click "Generate Image"</strong> to create a
+                        customized educational image
+                    </li>
+                </ol>
+
+                <div class="tip-box">
+                    <h4>Tip: Choosing the Right Difficulty</h4>
+                    <p>
+                        The system starts at "Very Simple" difficulty and will
+                        automatically progress as the child succeeds. However,
+                        you can generate a new image at the current difficulty
+                        level at any time if the current image isn't suitable.
+                    </p>
+                </div>
+            </section>
+
+            <section class="visolearn-card">
+                <h2>Using the Description Practice</h2>
+                <ol>
+                    <li>
+                        <strong>Show the generated image</strong> to the child
+                    </li>
+                    <li>
+                        <strong>Ask them to describe</strong> what they see in
+                        the image
+                    </li>
+                    <li>
+                        <strong>Type their description</strong> into the chat
+                        input box
+                    </li>
+                    <li>
+                        <strong>Click "Submit"</strong> to receive AI feedback
+                    </li>
+                    <li><strong>Share the feedback</strong> with the child</li>
+                    <li>
+                        <strong>Continue the conversation</strong>, encouraging
+                        the child to notice more details
+                    </li>
+                </ol>
+
+                <div class="tip-box">
+                    <h4>Tip: Encouraging Description</h4>
+                    <p>
+                        Try open-ended prompts like "What do you see in this
+                        picture?", "Tell me about the colors you notice", or
+                        "What is happening in this image?"
+                    </p>
+                </div>
+            </section>
+
+            <section class="visolearn-card">
+                <h2>Understanding the Progress Tracking</h2>
+                <ul>
+                    <li>
+                        <strong>Details Checklist:</strong> Shows all the key
+                        elements in the image and whether they've been
+                        identified
+                    </li>
+                    <li>
+                        <strong>Attempt Counter:</strong> Displays how many
+                        attempts have been used out of the allowed total
+                    </li>
+                    <li>
+                        <strong>Progress Bar:</strong> Shows how close the child
+                        is to reaching the threshold for advancement
+                    </li>
+                    <li>
+                        <strong>Session History:</strong> Records all past
+                        sessions for review and assessment
+                    </li>
+                </ul>
+
+                <div class="tip-box">
+                    <h4>Tip: Interpreting Feedback</h4>
+                    <p>
+                        The AI feedback is designed to be encouraging while
+                        guiding the child toward noticing more details. Hints
+                        are provided when the child seems to be struggling with
+                        identifying important elements.
+                    </p>
+                </div>
+            </section>
+
+            <section class="visolearn-card">
+                <h2>Saving and Exporting Data</h2>
+                <ul>
+                    <li>
+                        <strong>Save All Session Images:</strong> Exports all
+                        generated images to a folder on your computer
+                    </li>
+                    <li>
+                        <strong>Save Session Log:</strong> Creates a JSON file
+                        with complete session data for record-keeping or
+                        analysis
+                    </li>
+                </ul>
+
+                <div class="tip-box">
+                    <h4>Tip: Regular Backups</h4>
+                    <p>
+                        Consider saving session data at the end of each learning
+                        session to build a comprehensive record of progress over
+                        time.
+                    </p>
+                </div>
+            </section>
+
+            <section class="visolearn-card">
+                <h2>Keyboard Shortcuts</h2>
+                <table class="shortcuts-table">
+                    <tr>
+                        <th>Action</th>
+                        <th>Shortcut</th>
+                    </tr>
+                    <tr>
+                        <td>Generate Image</td>
+                        <td>Ctrl/Cmd + G</td>
+                    </tr>
+                    <tr>
+                        <td>Submit Description</td>
+                        <td>Ctrl/Cmd + Enter</td>
+                    </tr>
+                </table>
+            </section>
+
+            <section class="visolearn-card">
+                <h2>Troubleshooting</h2>
+                <h3>Common Issues</h3>
+                <dl class="faq-list">
+                    <dt>Image generation is taking too long</dt>
+                    <dd>
+                        Try reducing the number of inference steps in the
+                        configuration or check your internet connection.
+                    </dd>
+
+                    <dt>
+                        The system doesn't recognize details the child mentions
+                    </dt>
+                    <dd>
+                        The AI tries to match concepts rather than exact words.
+                        If recognition is still an issue, try encouraging the
+                        child to be more specific or use different words to
+                        describe the same elements.
+                    </dd>
+
+                    <dt>Error messages during image generation</dt>
+                    <dd>
+                        Check that your API keys are valid and correctly entered
+                        in the .env file. If problems persist, try restarting
+                        the application.
+                    </dd>
+                </dl>
+
+                <h3>Getting Support</h3>
+                <p>
+                    For additional help, please contact our support team at
+                    <a href="mailto:support@visolearn.example.com"
+                        >support@visolearn.example.com</a
+                    >.
+                </p>
+            </section>
+        </main>
+
+        <footer>
+            <div class="container">
+                <p>&copy; 2023 VisoLearn. All rights reserved.</p>
+                <p><a href="/">Return to Application</a></p>
+            </div>
+        </footer>
+
+        <script src="/static/scripts.js"></script>
+    </body>
+</html>

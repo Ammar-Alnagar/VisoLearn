@@ -1,0 +1,45 @@
+[
+  {
+    "prompt": "Okay, let's create a prompt focusing on a simple, clear interaction suitable for a 3-year-old, incorporating the treatment plan goals within a realistic setting. Since the specific \"Topic Focus\" was left blank, I will choose a fundamental social skill: **Taking Turns**. This directly addresses social communication, can involve a specific interest (the toy used), and demonstrates independence in managing the interaction.\n\n**Here is your Exceptional Image Generation Prompt:**\n\n\"A realistic scene captures two young children, approximately 3 years old, engaged in taking turns with a simple toy, embodying early social communication development. The main focus is on Child A, wearing a **pastel mint green long-sleeved shirt** with visible **soft cotton texture**, sitting upright on the floor. Child A has just placed a **bright primary-red wooden ring** onto a **natural light-wood stacking tower** base positioned directly between the two children. Child A is now looking expectantly towards Child B with a **neutral, calm facial expression**, their hands resting gently in their lap, signifying the end of their turn. Child B, wearing a **warm bumblebee-yellow t-shirt**, sits opposite Child A, slightly leaning forward, eyes focused on the stacking tower, one hand reaching towards a **sky-blue wooden ring** resting on the floor nearby. They are sitting on a **light beige, tightly woven floor mat** with a **subtle crisscross pattern texture**. Behind them, a **plain, soft-grey wall** ensures focus remains on the children. To the far left, partially visible, is the corner of a **simple white toy bin**. The scene is illuminated by **soft, diffused mid-morning natural light** coming from a large unseen window to the right, creating gentle highlights on the children's hair and soft, realistic shadows on the floor mat beneath them. The camera angle is an **eye-level medium shot**, framing both children from the waist up, clearly showing the toy, their postures, and interaction space. The overall emotional tone is **calm, patient, and gently focused**, highlighting the moment of transition in turn-taking. The style is **Photorealistic**, capturing lifelike details akin to high-quality child development photography. The **smooth, polished surface** of the wooden rings and tower contrasts with the soft textures of their clothing and the woven mat. Ensure **high detail, high quality , 4k**. 8k resolution, professional realistic, masterful composition.\"",
+    "image": null,
+    "image_description": "Okay, let's look at the picture together.\n\n**1. People:**\n*   There are **two children** in the picture.\n*   They look like **little boys**.\n*   They both have **brown hair**.\n*   They are both sitting down.\n\n**2. Child on the Left:**\n*   This child is wearing a **light green** long-sleeved shirt.\n*   He is wearing **grey pants**.\n*   He is sitting on a **round, beige mat**.\n*   He is looking towards the toy and the other child.\n*   His hands are resting near his legs.\n\n**3. Child on the Right:**\n*   This child is wearing a **yellow** short-sleeved t-shirt.\n*   He is wearing **grey pants**.\n*   He is sitting on the **round, beige mat**.\n*   He is looking down at the toy in the middle.\n*   One hand is near the toy.\n\n**4. Toys:**\n*   There is a **stacking toy** in the middle, between the children.\n    *   It has a **wooden block** at the bottom (the base).\n    *   On the base, there are **stacked rings**. Let's name the colors from bottom to top:\n        *   **Red** ring\n        *   **Light wood** colored ring (like beige or tan)\n        *   **Blue** ring\n        *   **Orange** ring\n        *   **Light green** ring\n        *   **Red** ring (at the very top)\n    *   The rings are **round** with holes in the middle.\n*   There is a small **blue ball** on the mat, near the child in the yellow shirt.\n\n**5. Where they are:**\n*   The children and the toy are sitting on a **round mat**.\n*   The mat is **beige** and looks **woven** (like fabric strands crossing over each other).\n*   The mat is on a **wooden floor**.\n*   Behind the children, there is a **grey wall**.\n*   In the background on the left, you can see the corner of a **white bin**.\n*   In the background on the right, you can see part of a **window** and a **white radiator** (heater with lines).\n\n**6. What is happening:**\n*   The two children are sitting quietly and looking at the stacking toy.\n*   The toy is partly built with rings stacked on top of each other.\n*   It looks like they might be playing with the stacking toy together.\n*   Their faces look calm and focused on the toy.",
+    "chat": [
+      [
+        "Child",
+        "asdasd"
+      ],
+      [
+        "Teacher",
+        "\": \"Thanks for trying! Let's look at the picture together again. Sometimes it takes a moment to find the words. \ud83d\ude0a\",\n  \"\n\u2728 Hint: \": \"What about the people in the picture? Can you tell me about the children?\",\n  \""
+      ]
+    ],
+    "treatment_plan": "",
+    "topic_focus": "",
+    "key_details": [
+      "Two young boys sitting on a floor mat",
+      "One boy wearing a green long-sleeved shirt",
+      "One boy wearing a yellow t-shirt",
+      "A colorful wooden stacking ring toy",
+      "The top ring on the stack is red",
+      "A square wooden base under the stacking toy",
+      "A blue ball on the floor mat",
+      "The boys are looking at the stacking toy",
+      "A beige woven floor mat",
+      "A wooden floor under the mat",
+      "A grey wall in the background",
+      "A white radiator in the background"
+    ],
+    "identified_details": [],
+    "used_hints": [
+      "\": \"What about the people in the picture? Can you tell me about the children?\",\n  \""
+    ],
+    "difficulty": "Very Simple",
+    "autism_level": "Level 1",
+    "age": "3",
+    "attempt_limit": 3,
+    "attempt_count": 1,
+    "details_threshold": 0.7,
+    "image_style": "Realistic",
+    "image_file": "images/session_0.png"
+  }
+]

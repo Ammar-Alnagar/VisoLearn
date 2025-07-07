@@ -1,0 +1,25 @@
+[1mdiff --git a/note.txt b/note.txt[m
+[1mindex d758be71..a5e1913a 100644[m
+[1m--- a/note.txt[m
+[1m+++ b/note.txt[m
+[36m@@ -1,17 +1,8 @@[m
+[31m-1-improve prompts in wisal story[m
+[31m-2-Improve narration in hekaya[m
+[31m-3-fix overall prompts[m
+[32m+[m[32mimagen4 later on -> multiple images + calls[m
+ [m
+ [m
+ [m
+[31m-auto image processing in back ground (threads and async)[m
+[32m+[m[32m* low quality for gpt image testing .[m
+ [m
+ [m
+[31m-use image model for reconstruction[m
+[31m-[m
+[31m-[m
+[31m-remove filler images --16images[m
+[31m-[m
+[31m-[m
+[31m-[m
+[31m-fill[m
+[32m+[m[32m*gpt image quality selector ==> high - med - low[m
