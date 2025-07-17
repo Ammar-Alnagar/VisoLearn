@@ -3,7 +3,7 @@
 
 <div align="center">
 
-![VisoLearn Logo](ui/Compumacy-Logo-Trans2.png)
+
 
 **🌟 Empowering communication through adaptive visual learning and interactive storytelling 🌟**
 
