@@ -167,7 +167,7 @@ def generate_text(prompt, model="text-davinci-003", max_tokens=150, temperature=
         return None
 ```
 
-## 🤖 Google Generative AI (Gemini) Integration
+## Google Generative AI Integration
 
 ### Setup Configuration
 
@@ -259,7 +259,7 @@ def create_model_with_safety():
     return model
 ```
 
-## 📁 Google Drive API Integration
+## Google Drive API Integration
 
 ### Authentication Setup
 
@@ -385,7 +385,7 @@ def create_shared_folder(folder_name, user_email):
     return folder
 ```
 
-## 🧠 API Error Handling
+## API Error Handling
 
 ### Common Error Types
 
@@ -434,7 +434,7 @@ else:
     print(f"Error: {result}")
 ```
 
-## 🚀 API Performance Optimization
+## API Performance Optimization
 
 ### Rate Limiting
 
@@ -495,7 +495,7 @@ def smart_generate_image(prompt, size="1024x1024", style="realistic"):
     return cached_image_generation(prompt_hash, prompt, size, style)
 ```
 
-## 🔒 Security Best Practices
+## Security Best Practices
 
 ### API Key Security
 
@@ -519,7 +519,7 @@ def smart_generate_image(prompt, size="1024x1024", style="realistic"):
 - Implement data retention policies
 - Comply with GDPR, COPPA regulations
 
-## 📊 API Monitoring
+## API Monitoring
 
 ### Usage Tracking
 
@@ -549,7 +549,7 @@ def generate_image_with_logging(prompt):
 - Error types and frequencies
 - Cost tracking
 
-## 📈 API Upgrade Paths
+## API Upgrade Paths
 
 ### OpenAI API Versions
 
@@ -577,7 +577,7 @@ def generate_image_with_logging(prompt):
 - Sheets API for data management
 - Calendar API for scheduling
 
-## 📞 Support and Troubleshooting
+## Support and Troubleshooting
 
 ### Common Issues
 

@@ -1,3 +1,5 @@
+![VisoLearn Logo](logo.png)
+
 # VisoLearn-2 - Visual Learning Platform for Autism Support
 
 <div align="center">

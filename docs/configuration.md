@@ -1,10 +1,10 @@
-# ⚙️ Configuration and Settings Documentation
+# Configuration and Settings Documentation
 
-## 📋 Overview
+## Overview
 
 This document provides comprehensive documentation for the configuration system, settings management, and application configuration in VisoLearn-2. It covers environment variables, configuration files, default values, and how the system manages different settings.
 
-## 🏗️ Configuration Architecture
+## Configuration Architecture
 
 ### Configuration Layers
 
@@ -33,7 +33,7 @@ VisoLearn-2 Configuration System
 - Database configurations
 - Debug modes
 
-## 📁 Configuration Files
+## Configuration Files
 
 ### Main Configuration (config.py)
 
@@ -108,7 +108,7 @@ GOOGLE_DRIVE_SYNC=True
 GOOGLE_DRIVE_FOLDER_NAME=VisoLearn-Sessions
 ```
 
-## 🔐 Security Configuration
+## Security Configuration
 
 ### API Key Management
 
@@ -200,7 +200,7 @@ def load_secure_config():
     return True
 ```
 
-## ⚙️ Application Settings
+## Application Settings
 
 ### System Configuration Manager
 
@@ -424,7 +424,7 @@ class UserConfig:
         return self.save_settings()
 ```
 
-## 🎨 UI Configuration
+## UI Configuration
 
 ### Theme and Display Settings
 
@@ -590,7 +590,7 @@ class AccessibilityConfig:
         return "\n".join(rules)
 ```
 
-## 🌐 API Configuration
+## API Configuration
 
 ### API Connection Settings
 
@@ -690,7 +690,7 @@ class APIConfig:
         return True
 ```
 
-## 📊 Performance Configuration
+## Performance Configuration
 
 ### Performance Settings
 
@@ -776,7 +776,7 @@ class PerformanceConfig:
         return issues
 ```
 
-## 🔧 Configuration Management Utilities
+## Configuration Management Utilities
 
 ### Configuration Validator
 
