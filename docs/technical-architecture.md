@@ -466,6 +466,39 @@ visolearn-2/
 - Concurrent API calls
 - Batch processing capabilities
 
+### 🧠 KV Cache Optimization
+
+**Paging Mechanism Inspired by Virtual Memory:**
+
+- **Blocks**: Divide KV Cache into fixed-size blocks (e.g., 16 tokens per block)
+- **Non-Contiguous Storage**: Blocks can be stored anywhere in physical GPU memory
+- **Block Table Mapping**: Maps logical token positions to physical block addresses
+
+```mermaid
+graph TD
+    A[Logical Token Sequence] --> B[Divide into Blocks<br/>16 tokens/block]
+    B --> C[Block Table<br/>Logical → Physical Mapping]
+    C --> D[Physical GPU Memory<br/>Non-contiguous Blocks]
+    D --> E[Access via Mapping]
+```
+
+**Flash Attention Memory Bandwidth Optimization:**
+
+- **Memory Bottleneck**: Attention computation bottlenecked by reading large N×N matrices from memory
+- **Tiling Strategy**: Break computation into small tiles that fit GPU's fast SRAM (Shared Memory)
+- **SRAM Utilization**: Compute entire tile operations without accessing slow Global Memory
+
+```mermaid
+graph TD
+    A[Large N×N Attention Matrix] --> B[Divide into Small Tiles]
+    B --> C[Load Tile to Fast SRAM]
+    C --> D[Compute Attention for Tile]
+    D --> E[Store Results Back]
+    E --> F{All Tiles Processed?}
+    F -->|No| C
+    F -->|Yes| G[Final Attention Output]
+```
+
 ## 🤝 Extensibility & Customization
 
 ### 🔧 Plugin Architecture
