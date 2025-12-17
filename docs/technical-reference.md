@@ -1,743 +1,771 @@
-# 📚 VisoLearn-2 Technical Reference Documentation
+# 📚 Technical Reference Documentation
 
 ## 🎯 Overview
 
-This document provides comprehensive technical documentation for all files and components in the VisoLearn-2 system. It serves as a reference guide for developers, maintainers, and advanced users.
+This document provides comprehensive technical documentation for all modules, functions, classes, and components in the VisoLearn-2 system. It serves as a detailed reference for developers, maintainers, and advanced users.
 
-## 🏗️ System Architecture Overview
+## 🏗️ Module Documentation
 
-```
-VisoLearn-2 System Architecture
-├── Core Application (app.py)
-├── Configuration (config.py)
-├── Models Layer
-│   ├── Image Generation
-│   ├── Story Generation
-│   ├── Prompt Generation
-│   ├── Evaluation
-│   └── Backup Image Generation
-├── Utilities
-│   ├── State Management
-│   ├── File Operations
-│   ├── Local Storage
-│   └── Visualization
-├── User Interface (ui/interface.py)
-└── Testing Framework
-```
+### 📁 Models Module
 
-## 📁 File-by-File Documentation
+The `models/` directory contains the core AI and business logic components of VisoLearn-2.
 
-### 🎯 Core Application Files
+#### 🖼️ `image_generation.py`
 
-#### `app.py` - Main Application Entry Point
+**Purpose:** Handles image generation using Google Imagen 4.0 Ultra API and provides image processing utilities.
 
-**Purpose:** The main application file that initializes and runs the VisoLearn-2 platform.
+**Key Functions:**
 
-**Key Components:**
-- Gradio interface setup and configuration
-- Session management initialization
-- Route handling for different modules
-- Main application loop
-- Error handling and logging
-
-**Dependencies:**
-- `gradio` - Web interface framework
-- `models.*` - All model modules
-- `utils.*` - Utility functions
-- `config` - Configuration settings
-- `ui.interface` - User interface components
-
-**Usage:**
-```bash
-python app.py
-```
-
-**Configuration:**
-- Loads settings from `config.py`
-- Initializes API clients (OpenAI, Google Gemini)
-- Sets up session storage
-- Configures logging and error handling
-
-#### `config.py` - System Configuration
-
-**Purpose:** Central configuration management for the VisoLearn-2 application.
-
-**Key Components:**
-- API key management
-- System settings and defaults
-- Difficulty level configurations
-- Image generation parameters
-- Session management settings
-
-**Configuration Structure:**
 ```python
-# API Configuration
-OPENAI_API_KEY = "your_key_here"
-GEMINI_API_KEY = "your_key_here"
-GOOGLE_API_KEY = "your_key_here"
-
-# System Settings
-DEBUG_MODE = False
-MAX_SESSIONS = 10
-IMAGE_CACHE_SIZE = 100
-
-# Difficulty Levels
-DIFFICULTY_LEVELS = {
-    "very_simple": {"max_details": 3, "hint_threshold": 2},
-    "simple": {"max_details": 5, "hint_threshold": 3},
-    "medium": {"max_details": 8, "hint_threshold": 4},
-    "detailed": {"max_details": 12, "hint_threshold": 5},
-    "very_detailed": {"max_details": 15, "hint_threshold": 6}
-}
-
-# Image Styles
-IMAGE_STYLES = [
-    "realistic", "illustration", "cartoon", "watercolor",
-    "3d_rendering", "anime", "sketch", "oil_painting"
-]
+def generate_image_fn(selected_prompt, model="models/imagen-4.0-ultra-generate-preview-06-06", output_path=None)
 ```
 
-**Environment Variables:**
-- `OPENAI_API_KEY` - OpenAI API key
-- `GEMINI_API_KEY` - Google Gemini API key
-- `GOOGLE_API_KEY` - Google API key
-- `DEBUG_MODE` - Enable/disable debug mode
-- `MAX_SESSIONS` - Maximum concurrent sessions
+**Parameters:**
+- `selected_prompt` (str): Text description for image generation
+- `model` (str): Imagen model identifier (default: Google Imagen 4.0 Ultra)
+- `output_path` (str, optional): File path to save generated image
 
-### 🤖 Models Layer
+**Returns:** PIL.Image.Image or None
 
-#### `models/image_generation.py` - Image Generation Module
+**Global Variables:**
+- `global_image_data_url`: Stores the data URL of the generated image
+- `global_image_prompt`: Stores the prompt used for generation
+- `global_image_description`: Stores user-provided image description
 
-**Purpose:** Handles all image generation functionality using AI APIs.
-
-**Key Components:**
-- OpenAI DALL-E integration
-- Google Gemini image generation
-- Style-based image creation
-- Error handling and retry logic
-- Image validation and quality checks
-
-**Main Functions:**
-
-`generate_image(prompt: str, style: str, difficulty: str) -> dict`
-- Generates an image based on text prompt, style, and difficulty
-- Returns image URL, metadata, and generation stats
-
-`validate_image(image_data: dict) -> bool`
-- Validates generated image quality and content
-- Checks for appropriateness and clarity
-
-`get_style_parameters(style: str) -> dict`
-- Returns style-specific generation parameters
-- Handles different visual styles and their requirements
-
-**Supported Styles:**
-- Realistic, Illustration, Cartoon, Watercolor
-- 3D Rendering, Anime, Sketch, Oil Painting
+**Error Handling:**
+- Validates API key availability from environment variables or config
+- Handles image generation failures gracefully
+- Provides meaningful error messages
 
 **Usage Example:**
 ```python
-from models.image_generation import generate_image
+from models.image_generation import generate_image_fn
 
-image_result = generate_image(
-    prompt="A happy child playing in a park",
-    style="cartoon",
-    difficulty="medium"
-)
+# Generate an image with a specific prompt
+image = generate_image_fn("A happy child playing with colorful blocks")
+if image:
+    image.show()  # Display the generated image
 ```
 
-#### `models/story_generation.py` - Story Generation Module
+#### ✅ `evaluation.py`
 
-**Purpose:** Handles comic story generation and narrative creation.
+**Purpose:** Implements the evaluation engine for assessing user descriptions and providing feedback.
 
-**Key Components:**
-- Multi-panel story generation
-- Character consistency management
-- Narrative coherence algorithms
-- Panel-by-panel story development
-- Story validation and quality checks
+**Key Functions:**
 
-**Main Functions:**
+```python
+def evaluate_description(user_description, expected_details, difficulty_level=1)
+```
 
-`generate_story_concept(topic: str, difficulty: str) -> dict`
-- Generates a story concept based on topic and difficulty
-- Returns story outline, characters, and setting
+**Parameters:**
+- `user_description` (str): User-provided description of the image
+- `expected_details` (list): List of key details that should be mentioned
+- `difficulty_level` (int): Current difficulty level (1-5)
 
-`create_comic_panels(story_concept: dict, num_panels: int) -> list`
-- Creates individual comic panels from story concept
-- Returns list of panel descriptions and prompts
+**Returns:** dict containing evaluation results with keys:
+- `score` (float): Overall evaluation score (0-1)
+- `feedback` (str): Constructive feedback for the user
+- `missing_details` (list): Details not mentioned by user
+- `correct_details` (list): Details correctly identified
 
-`generate_full_story(topic: str, num_panels: int, style: str) -> dict`
-- Complete story generation workflow
-- Returns full story with all panels and metadata
+**Evaluation Algorithm:**
+1. Semantic analysis using Google Gemini
+2. Detail matching against expected elements
+3. Language complexity assessment
+4. Therapeutic goal alignment check
+
+**Usage Example:**
+```python
+from models.evaluation import evaluate_description
+
+result = evaluate_description(
+    "I see a boy with blue shirt playing with red blocks",
+    ["boy", "blue shirt", "red blocks", "table", "smiling"],
+    difficulty_level=2
+)
+
+print(f"Score: {result['score']}")
+print(f"Feedback: {result['feedback']}")
+```
+
+#### 📖 `story_generation.py`
+
+**Purpose:** Manages the comic story generation process including narrative creation and panel management.
+
+**Key Functions:**
+
+```python
+def generate_story_prompt(characters, setting, theme, num_panels=4)
+```
+
+**Parameters:**
+- `characters` (list): List of character descriptions
+- `setting` (str): Story setting/location
+- `theme` (str): Story theme or lesson
+- `num_panels` (int): Number of comic panels (default: 4)
+
+**Returns:** dict containing:
+- `story_prompt` (str): Complete story generation prompt
+- `panel_prompts` (list): Individual prompts for each panel
+- `character_descriptions` (dict): Detailed character info
 
 **Story Generation Process:**
-1. Concept generation
-2. Character development
-3. Panel-by-panel creation
-4. Visual consistency checks
-5. Narrative validation
+1. Character development and consistency checks
+2. Narrative structure creation
+3. Panel-by-panel scene breakdown
+4. Visual continuity planning
 
 **Usage Example:**
 ```python
-from models.story_generation import generate_full_story
+from models.story_generation import generate_story_prompt
 
-story = generate_full_story(
-    topic="A day at the beach",
-    num_panels=4,
-    style="cartoon"
+story_data = generate_story_prompt(
+    characters=["boy with autism", "supportive teacher"],
+    setting="classroom",
+    theme="overcoming challenges",
+    num_panels=6
 )
 ```
 
-#### `models/prompt_generation.py` - Prompt Generation Module
+#### 💬 `prompt_generation.py`
 
-**Purpose:** Handles the creation of AI prompts for image and story generation.
+**Purpose:** Creates contextual prompts for image generation based on user profile and learning objectives.
 
-**Key Components:**
-- Prompt template management
-- Contextual prompt generation
-- Style-specific prompt formatting
-- Difficulty-based prompt adjustment
-- Prompt optimization algorithms
+**Key Functions:**
 
-**Main Functions:**
-
-`generate_image_prompt(description: str, style: str, difficulty: str) -> str`
-- Creates optimized image generation prompt
-- Incorporates style and difficulty parameters
-
-`generate_story_prompt(concept: str, characters: list, setting: str) -> str`
-- Creates narrative prompt for story generation
-- Includes character and setting details
-
-`optimize_prompt(prompt: str, target_length: int) -> str`
-- Optimizes prompt for better AI understanding
-- Adjusts length and clarity
-
-**Prompt Structure:**
+```python
+def generate_contextual_prompt(age, autism_level, topic, difficulty=1)
 ```
-[Style Instructions] + [Difficulty Parameters] + 
-[Content Description] + [Quality Requirements] + 
-[Safety Constraints]
-```
+
+**Parameters:**
+- `age` (int): User's age
+- `autism_level` (int): Autism support level (1-3)
+- `topic` (str): Learning topic/interest area
+- `difficulty` (int): Current difficulty level
+
+**Returns:** str - Complete image generation prompt
+
+**Prompt Generation Logic:**
+- Age-appropriate language and concepts
+- Autism-level specific visual complexity
+- Topic-relevant content selection
+- Difficulty-based detail requirements
 
 **Usage Example:**
 ```python
-from models.prompt_generation import generate_image_prompt
+from models.prompt_generation import generate_contextual_prompt
 
-prompt = generate_image_prompt(
-    description="Child playing with toys",
-    style="watercolor",
-    difficulty="simple"
+prompt = generate_contextual_prompt(
+    age=8,
+    autism_level=2,
+    topic="animals",
+    difficulty=3
 )
 ```
 
-#### `models/evaluation.py` - Evaluation Module
+### 📁 Utils Module
 
-**Purpose:** Handles user response evaluation and feedback generation.
+The `utils/` directory contains utility functions and helper modules.
 
-**Key Components:**
-- Semantic analysis algorithms
-- Detail completeness scoring
-- Conceptual understanding evaluation
-- Feedback generation system
-- Progress tracking metrics
+#### 💾 `file_operations.py`
 
-**Main Functions:**
+**Purpose:** Handles all file system operations including session management and data persistence.
 
-`evaluate_response(user_input: str, expected_details: list, difficulty: str) -> dict`
-- Evaluates user response against expected details
-- Returns score, feedback, and progress metrics
+**Key Functions:**
 
-`generate_feedback(score: float, missing_details: list, difficulty: str) -> str`
-- Creates constructive feedback for user
-- Includes encouragement and specific guidance
-
-`calculate_progress(session_data: dict) -> dict`
-- Calculates overall progress metrics
-- Returns skill development analysis
-
-**Evaluation Metrics:**
-- Semantic accuracy (0-100%)
-- Detail completeness (0-100%)
-- Conceptual understanding (0-100%)
-- Language complexity (1-5 scale)
-
-**Usage Example:**
 ```python
-from models.evaluation import evaluate_response
-
-evaluation = evaluate_response(
-    user_input="I see a boy with a red ball",
-    expected_details=["boy", "red ball", "park", "sunny day"],
-    difficulty="medium"
-)
+def save_session_data(session_id, data, session_type="image_description")
 ```
 
-#### `models/backup_image_generation.py` - Backup Image Generation
+**Parameters:**
+- `session_id` (str): Unique session identifier
+- `data` (dict): Session data to save
+- `session_type` (str): Type of session (image_description, story, etc.)
 
-**Purpose:** Provides fallback image generation when primary methods fail.
-
-**Key Components:**
-- Alternative AI model integration
-- Local image generation fallback
-- Error recovery mechanisms
-- Quality validation for backup images
-
-**Main Functions:**
-
-`generate_backup_image(prompt: str, style: str) -> dict`
-- Generates image using backup methods
-- Returns image data or error information
-
-`validate_backup_image(image_data: dict) -> bool`
-- Validates backup image quality
-- Ensures minimum standards are met
-
-**Fallback Strategy:**
-1. Try alternative AI models
-2. Use local generation if available
-3. Provide error message with suggestions
-4. Log failure for debugging
-
-### 🛠️ Utilities
-
-#### `utils/state_management.py` - State Management
-
-**Purpose:** Manages application state and session data.
-
-**Key Components:**
-- Session state management
-- User progress tracking
-- Configuration persistence
-- State validation and recovery
-
-**Main Functions:**
-
-`initialize_session(user_id: str, settings: dict) -> dict`
-- Creates new user session
-- Returns session object with initial state
-
-`update_session_state(session_id: str, updates: dict) -> bool`
-- Updates session state with new data
-- Returns success status
-
-`get_session_state(session_id: str) -> dict`
-- Retrieves current session state
-- Returns session data or None if not found
-
-**State Structure:**
-```python
-{
-    "session_id": "unique_id",
-    "user_id": "user_identifier",
-    "start_time": "timestamp",
-    "current_module": "image_description",
-    "progress": {"completed": 5, "total": 10},
-    "settings": {"difficulty": "medium", "style": "cartoon"},
-    "history": ["previous_actions"]
-}
-```
-
-#### `utils/file_operations.py` - File Operations
-
-**Purpose:** Handles all file system operations and data persistence.
-
-**Key Components:**
-- JSON file management
-- Image file handling
-- Directory structure management
-- Data backup and restore
-- File validation and error handling
-
-**Main Functions:**
-
-`save_session_data(session_id: str, data: dict, format: str = "json") -> bool`
-- Saves session data to file
-- Supports JSON, CSV, and other formats
-
-`load_session_data(session_id: str, format: str = "json") -> dict`
-- Loads session data from file
-- Returns parsed data or None if not found
-
-`save_image(image_data: bytes, filename: str, format: str = "png") -> bool`
-- Saves image data to file
-- Supports multiple image formats
+**Returns:** bool - Success status
 
 **File Structure:**
 ```
 Sessions History/
 ├── {session_id}/
 │   ├── images/
-│   │   └── {image_id}.png
+│   │   └── session_0.png
 │   ├── metadata.json
 │   └── sessions.json
-└── ...
 ```
 
-#### `utils/local_storage.py` - Local Storage Management
+**Usage Example:**
+```python
+from utils.file_operations import save_session_data
 
-**Purpose:** Manages local data storage and caching.
+session_data = {
+    "user_id": "user123",
+    "timestamp": "2024-01-15T10:30:00",
+    "images": ["image1.png"],
+    "descriptions": ["A boy playing with blocks"]
+}
+
+save_session_data("session_20240115", session_data)
+```
+
+#### 🔄 `state_management.py`
+
+**Purpose:** Manages application state and session data during runtime.
+
+**Key Functions:**
+
+```python
+def get_current_session()
+def update_session_state(key, value)
+def reset_session()
+```
+
+**State Management Features:**
+- Session persistence across interface interactions
+- Temporary data storage
+- State validation and cleanup
+- Multi-session support
+
+**Usage Example:**
+```python
+from utils.state_management import get_current_session, update_session_state
+
+# Get current session data
+session = get_current_session()
+
+# Update session state
+update_session_state("current_image", "image123.png")
+```
+
+#### 📊 `visualization.py`
+
+**Purpose:** Generates visual representations of progress and analytics data.
+
+**Key Functions:**
+
+```python
+def generate_progress_chart(session_data)
+def create_skill_development_heatmap(user_data)
+```
+
+**Visualization Types:**
+- Progress charts and graphs
+- Skill development heatmaps
+- Engagement timelines
+- Achievement visualizations
+
+**Usage Example:**
+```python
+from utils.visualization import generate_progress_chart
+
+# Generate a progress chart for display
+chart_image = generate_progress_chart(session_data)
+chart_image.save("progress_chart.png")
+```
+
+### 📁 UI Module
+
+The `ui/` directory contains user interface components.
+
+#### 🎨 `interface.py`
+
+**Purpose:** Main Gradio interface implementation with all interactive components.
 
 **Key Components:**
-- Data caching system
-- Storage optimization
-- Cache invalidation strategies
-- Storage quota management
 
-**Main Functions:**
-
-`cache_image(image_id: str, image_data: bytes, metadata: dict) -> bool`
-- Caches image data locally
-- Returns success status
-
-`retrieve_cached_image(image_id: str) -> dict`
-- Retrieves cached image data
-- Returns image data and metadata or None
-
-`cleanup_cache(max_size: int = 100) -> int`
-- Cleans up cache based on size limits
-- Returns number of items removed
-
-**Cache Strategy:**
-- LRU (Least Recently Used) cache
-- Size-based automatic cleanup
-- Metadata preservation
-- Error recovery
-
-#### `utils/visualization.py` - Visualization Utilities
-
-**Purpose:** Handles data visualization and UI rendering.
-
-**Key Components:**
-- Progress chart generation
-- Analytics visualization
-- Image rendering and display
-- UI component generation
-
-**Main Functions:**
-
-`generate_progress_chart(progress_data: dict) -> str`
-- Creates visual progress chart
-- Returns HTML/JavaScript for rendering
-
-`create_analytics_dashboard(metrics: dict) -> str`
-- Generates analytics dashboard
-- Returns interactive visualization code
-
-`render_image_comparison(before: str, after: str) -> str`
-- Creates side-by-side image comparison
-- Returns HTML for display
-
-### 🎨 User Interface
-
-#### `ui/interface.py` - Main User Interface
-
-**Purpose:** Contains all Gradio interface components and layouts.
-
-**Key Components:**
-- Main interface layout
-- Module-specific UI components
-- Event handlers and callbacks
-- Theme and styling configuration
-
-**Main Components:**
-
-`create_main_interface() -> gr.Blocks`
-- Creates the main Gradio interface
-- Returns configured interface object
-
-`setup_image_description_tab() -> gr.Tab`
-- Sets up image description module UI
-- Returns configured tab component
-
-`setup_story_generator_tab() -> gr.Tab`
-- Sets up story generator module UI
-- Returns configured tab component
-
-**UI Structure:**
-```
-Main Interface
-├── Header (Title, Navigation)
-├── Image Description Tab
-│   ├── Configuration Panel
-│   ├── Image Display Area
-│   ├── Response Input
-│   └── Feedback Display
-├── Story Generator Tab
-│   ├── Story Configuration
-│   ├── Panel Display
-│   ├── Analysis Tools
-│   └── Export Options
-└── Analytics Dashboard
-```
-
-### 🧪 Testing Framework
-
-#### `tests/` - Comprehensive Test Suite
-
-**Purpose:** Contains all testing components for the VisoLearn-2 system.
-
-**Test Categories:**
-- Unit tests (individual components)
-- Integration tests (module interactions)
-- System tests (end-to-end workflows)
-- Regression tests (bug prevention)
-- Performance tests (system metrics)
-
-**Key Test Files:**
-
-`tests/test_image_generation.py` - Image generation tests
-`tests/test_story_generation.py` - Story generation tests
-`tests/test_evaluation.py` - Evaluation system tests
-`tests/test_file_operations.py` - File operation tests
-`tests/test_integration.py` - Integration tests
-`tests/comprehensive_test.py` - Full system tests
-
-**Testing Approach:**
-- pytest framework
-- Mocking for external APIs
-- Test coverage monitoring
-- Continuous integration ready
-
-## 🔧 Development Patterns
-
-### Common Usage Patterns
-
-**Image Generation Workflow:**
 ```python
-from models.image_generation import generate_image
-from models.prompt_generation import generate_image_prompt
-
-# 1. Create prompt
-prompt = generate_image_prompt(
-    description="Child learning with blocks",
-    style="illustration",
-    difficulty="simple"
-)
-
-# 2. Generate image
-image_result = generate_image(prompt, "illustration", "simple")
-
-# 3. Validate and use result
-if image_result["success"]:
-    display_image(image_result["image_url"])
+def create_interface()
 ```
 
-**Story Generation Workflow:**
+**Interface Sections:**
+- Image Description Practice Module
+- Comic Story Generator Module
+- Analytics Dashboard
+- Settings and Configuration
+- User Profile Management
+
+**UI Features:**
+- Autism-friendly design patterns
+- High-contrast color schemes
+- Reduced visual clutter
+- Consistent navigation
+
+**Usage Example:**
 ```python
-from models.story_generation import generate_full_story
+from ui.interface import create_interface
 
-# 1. Generate complete story
-story = generate_full_story(
-    topic="First day of school",
-    num_panels=6,
-    style="cartoon"
-)
-
-# 2. Process and display
-for panel in story["panels"]:
-    display_panel(panel["image"], panel["description"])
+# Create and launch the interface
+demo = create_interface()
+demo.launch()
 ```
 
-**Evaluation Workflow:**
+## 🔧 Configuration Management
+
+### 📄 `config.py`
+
+**Purpose:** Centralized configuration management for API keys and application settings.
+
+**Configuration Variables:**
+- `OPENAI_API_KEY`: OpenAI API key
+- `GOOGLE_API_KEY`: Google API key
+- `HF_TOKEN`: Hugging Face token
+- `BFL_API_KEY`: Blue Foundation API key
+- `DEBUG_MODE`: Debug flag
+- `SESSION_TIMEOUT`: Session timeout duration
+
+**Configuration Loading:**
+1. Environment variables (highest priority)
+2. Config file settings
+3. Default values
+
+**Usage Example:**
 ```python
-from models.evaluation import evaluate_response
+import config
 
-# 1. Define expected details
-expected = ["child", "red apple", "table", "smiling"]
-
-# 2. Evaluate user response
-evaluation = evaluate_response(
-    user_input="I see a happy child with an apple on the table",
-    expected_details=expected,
-    difficulty="medium"
-)
-
-# 3. Provide feedback
-show_feedback(evaluation["feedback"])
-update_progress(evaluation["score"])
+# Access configuration values
+api_key = config.OPENAI_API_KEY
+debug_mode = config.DEBUG_MODE
 ```
 
-## 📊 Performance Considerations
+## 🚀 Main Application
 
-### Optimization Strategies
+### 📄 `app.py`
 
-**Image Generation:**
-- Cache frequently used images
-- Implement retry logic for API failures
-- Use appropriate image sizes for display
-- Compress images for storage
+**Purpose:** Main application entry point and initialization.
 
-**Story Generation:**
-- Batch panel generation where possible
-- Reuse character descriptions
-- Cache common story elements
-- Optimize prompt generation
+**Key Functions:**
 
-**Evaluation:**
-- Pre-process expected details
-- Use efficient string matching
-- Cache evaluation patterns
-- Optimize feedback generation
+```python
+def main()
+```
 
-### Memory Management
+**Initialization Process:**
+1. Configure Google API client
+2. Initialize Gradio interface
+3. Set up server configuration
+4. Launch web application
 
-**Session Management:**
-- Limit concurrent sessions
-- Implement session timeout
-- Clean up inactive sessions
-- Monitor memory usage
+**Usage Example:**
+```python
+# Run the application
+python app.py
+```
+
+## 🧪 Testing Framework
+
+### 📁 `tests/`
+
+**Test Structure:**
+- Unit tests for individual functions
+- Integration tests for module interactions
+- End-to-end tests for complete workflows
+- Performance tests for system behavior
+
+**Test Coverage:**
+- 85%+ code coverage target
+- Comprehensive error case testing
+- Edge case validation
+- Regression test suite
+
+**Running Tests:**
+```bash
+# Run all tests
+python -m pytest tests/
+
+# Run specific test module
+python -m pytest tests/test_image_generation.py
+```
+
+## 📊 Data Structures
+
+### Session Data Structure
+
+```json
+{
+  "session_id": "unique_identifier",
+  "user_id": "user_identifier",
+  "timestamp": "ISO_8601_timestamp",
+  "session_type": "image_description|story|comic",
+  "metadata": {
+    "age": 8,
+    "autism_level": 2,
+    "topic": "animals",
+    "difficulty_level": 3
+  },
+  "images": [
+    {
+      "image_id": "image_001",
+      "prompt": "detailed_image_prompt",
+      "path": "images/image_001.png",
+      "generated_at": "timestamp",
+      "descriptions": [
+        {
+          "description": "user_description_text",
+          "timestamp": "timestamp",
+          "evaluation": {
+            "score": 0.85,
+            "feedback": "feedback_text",
+            "missing_details": ["detail1", "detail2"],
+            "correct_details": ["detail3", "detail4"]
+          }
+        }
+      ]
+    }
+  ],
+  "progress": {
+    "current_level": 3,
+    "completion_rate": 0.75,
+    "skills_developed": ["visual_analysis", "descriptive_language"]
+  }
+}
+```
+
+### User Profile Structure
+
+```json
+{
+  "user_id": "unique_identifier",
+  "name": "user_name",
+  "age": 8,
+  "autism_level": 2,
+  "preferences": {
+    "image_style": "cartoon",
+    "difficulty_progression": "automatic",
+    "language": "english",
+    "theme": "light"
+  },
+  "progress": {
+    "image_description": {
+      "current_level": 3,
+      "sessions_completed": 15,
+      "average_score": 0.82
+    },
+    "story_comprehension": {
+      "current_level": 2,
+      "sessions_completed": 8,
+      "average_score": 0.78
+    }
+  },
+  "achievements": [
+    {
+      "achievement_id": "first_session",
+      "unlocked_at": "timestamp",
+      "description": "Completed first learning session"
+    }
+  ]
+}
+```
+
+## 🔄 API Integration Patterns
+
+### OpenAI API Integration
+
+**Best Practices:**
+- API key management via environment variables
+- Error handling and retry logic
+- Rate limiting awareness
+- Response validation
+
+**Integration Example:**
+```python
+import openai
+from config import OPENAI_API_KEY
+
+openai.api_key = OPENAI_API_KEY
+
+try:
+    response = openai.Image.create(
+        prompt="A happy child playing with blocks",
+        n=1,
+        size="1024x1024"
+    )
+    image_url = response['data'][0]['url']
+except openai.error.OpenAIError as e:
+    # Handle API errors gracefully
+    print(f"OpenAI API error: {e}")
+```
+
+### Google Gemini Integration
+
+**Best Practices:**
+- Context management for multi-turn conversations
+- Token usage monitoring
+- Response formatting and validation
+- Error recovery strategies
+
+**Integration Example:**
+```python
+from google.generativeai import configure, GenerativeModel
+
+configure(api_key=config.GOOGLE_API_KEY)
+model = GenerativeModel('gemini-pro')
+
+try:
+    response = model.generate_content(
+        "Evaluate this description: 'A boy with blue shirt playing with red blocks'"
+    )
+    evaluation = response.text
+except Exception as e:
+    # Handle Google API errors
+    print(f"Google API error: {e}")
+```
+
+## 📈 Performance Optimization Techniques
+
+### Caching Strategies
 
 **Image Caching:**
-- Set reasonable cache limits
-- Implement LRU cache strategy
-- Monitor cache size
-- Automatic cleanup routines
+- Store generated images locally
+- Implement cache invalidation policies
+- Use thumbnails for previews
 
-## 🔒 Security Considerations
+**API Response Caching:**
+- Cache frequent API responses
+- Implement TTL (Time-To-Live) policies
+- Monitor cache hit rates
+
+### Asynchronous Processing
+
+**Background Tasks:**
+- Image generation queues
+- Analytics processing
+- Cloud synchronization
+- Data backup operations
+
+**Parallel Processing:**
+- Multi-threaded operations
+- Concurrent API calls
+- Batch processing capabilities
+
+## 🔒 Security Best Practices
+
+### API Key Management
+
+**Security Measures:**
+- Never commit API keys to version control
+- Use environment variables for sensitive data
+- Implement key rotation policies
+- Monitor API usage patterns
 
 ### Data Protection
 
-**Sensitive Data:**
-- Never store API keys in code
-- Use environment variables
-- Encrypt sensitive user data
-- Implement proper access controls
+**Security Features:**
+- Data encryption for sensitive information
+- Secure authentication mechanisms
+- Input validation and sanitization
+- Privacy-preserving analytics
 
-**API Security:**
-- Validate all API responses
-- Implement rate limiting
-- Use HTTPS for all communications
-- Validate input data thoroughly
+## 🤝 Extensibility Patterns
 
-### Error Handling
+### Plugin Architecture
 
-**Best Practices:**
-- Graceful degradation on failures
-- Comprehensive error logging
-- User-friendly error messages
-- Automatic recovery where possible
-- Proper exception handling
+**Extension Points:**
+- Custom evaluation algorithms
+- Additional image styles
+- New therapeutic modules
+- Enhanced analytics features
 
-## 🎓 Best Practices
+**Plugin Interface:**
+```python
+class EvaluationPlugin:
+    def evaluate(self, user_description, expected_details):
+        """Evaluate user description and return feedback"""
+        pass
+    
+    def get_name(self):
+        """Return plugin name"""
+        pass
+    
+    def get_version(self):
+        """Return plugin version"""
+        pass
+```
 
-### Code Organization
+### Configuration Extensibility
 
-**Module Structure:**
-- Keep related functionality together
-- Separate concerns clearly
-- Use meaningful function names
-- Maintain consistent style
+**Customization Options:**
+- Module-specific configuration
+- Feature flags and toggles
+- Environment-based settings
+- User preference overrides
 
-**Documentation:**
-- Document all public functions
-- Include usage examples
-- Document edge cases
-- Keep documentation updated
+## 📚 Error Handling and Debugging
 
-### Testing
+### Error Handling Patterns
 
-**Test Coverage:**
-- Aim for 80%+ test coverage
-- Test both success and failure cases
-- Include edge case testing
-- Regularly update tests
+**Common Error Types:**
+- API connection failures
+- Invalid user input
+- Resource limitations
+- Permission issues
 
-**Test Maintenance:**
-- Keep tests fast and focused
-- Use mocking for external dependencies
-- Test one thing per test
-- Keep test data separate
+**Error Handling Example:**
+```python
+try:
+    # Risky operation
+    result = generate_image(prompt)
+    
+    if not result:
+        raise ValueError("Image generation failed")
+        
+except APIError as e:
+    # Handle API-specific errors
+    log_error(f"API Error: {e}")
+    show_user_message("Temporary service issue. Please try again.")
+    
+except ValueError as e:
+    # Handle validation errors
+    log_error(f"Validation Error: {e}")
+    show_user_message("Please check your input and try again.")
+    
+except Exception as e:
+    # Handle unexpected errors
+    log_error(f"Unexpected Error: {e}", level="critical")
+    show_user_message("An unexpected error occurred. Please contact support.")
+```
+
+### Debugging Techniques
+
+**Debugging Tools:**
+- Comprehensive logging system
+- Debug mode with verbose output
+- Performance profiling
+- Memory usage monitoring
+
+**Debugging Example:**
+```python
+import logging
+from config import DEBUG_MODE
+
+# Configure logging
+logging.basicConfig(
+    level=logging.DEBUG if DEBUG_MODE else logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+
+logger = logging.getLogger(__name__)
+
+# Debug logging
+def complex_function():
+    logger.debug("Starting complex function")
+    try:
+        # Function logic
+        logger.info("Function completed successfully")
+    except Exception as e:
+        logger.error(f"Function failed: {e}", exc_info=True)
+```
+
+## 📊 Analytics and Monitoring
+
+### Analytics Collection
+
+**Tracked Metrics:**
+- Session duration and engagement
+- Response accuracy and completeness
+- Progress through difficulty levels
+- Skill development trends
+- Therapeutic goal achievement
+
+**Analytics Structure:**
+```json
+{
+  "analytics_id": "unique_identifier",
+  "session_id": "related_session",
+  "user_id": "user_identifier",
+  "timestamp": "ISO_8601_timestamp",
+  "metrics": {
+    "engagement": {
+      "duration_seconds": 360,
+      "interactions": 15,
+      "completion_rate": 0.85
+    },
+    "performance": {
+      "average_score": 0.78,
+      "improvement_rate": 0.12,
+      "skill_development": ["visual_analysis", "narrative_comprehension"]
+    },
+    "technical": {
+      "api_calls": 8,
+      "processing_time_ms": 4500,
+      "errors": 0
+    }
+  }
+}
+```
+
+### Monitoring System
+
+**Monitoring Features:**
+- Real-time performance metrics
+- Error rate tracking
+- Resource utilization monitoring
+- User activity logging
+
+**Alerting System:**
+- Threshold-based alerts
+- Anomaly detection
+- Performance degradation warnings
+- Error rate spikes
+
+## 🎯 Future Development Roadmap
+
+### Architecture Evolution
+
+**Planned Enhancements:**
+- Microservices architecture
+- Containerization with Docker
+- Kubernetes orchestration
+- Serverless function integration
+- Enhanced caching layers
+- Advanced monitoring systems
+
+### Performance Improvements
+
+**Optimization Targets:**
+- Reduced API response times
+- Enhanced caching strategies
+- Improved resource utilization
+- Better error recovery
+- Enhanced scalability
+
+### Feature Expansion
+
+**Upcoming Features:**
+- Multi-language support expansion
+- Enhanced accessibility options
+- Advanced therapeutic modules
+- Mobile application versions
+- Integration with educational platforms
 
 ## 📚 Additional Resources
 
-### API Documentation
+### Documentation Structure
 
-**OpenAI API:**
-- Image generation endpoints
-- Text completion endpoints
-- Rate limits and quotas
-
-**Google Gemini API:**
-- Text generation capabilities
-- Image analysis features
-- Authentication methods
-
-### Development Tools
-
-**Recommended Tools:**
-- Python 3.10+
-- pytest for testing
-- black for code formatting
-- flake8 for linting
-- mypy for type checking
-- pre-commit for hooks
-
-### Learning Resources
-
-**Key Technologies:**
-- Gradio documentation
-- OpenAI API guides
-- Google Gemini documentation
-- OpenCV tutorials
-- Python best practices
-
-## 🚀 Getting Started with Development
-
-### Development Setup
-
-```bash
-# Clone repository
-git clone https://github.com/your-username/VisoLearn-2.git
-cd VisoLearn-2
-
-# Create virtual environment
-python -m venv venv-dev
-source venv-dev/bin/activate
-
-# Install development dependencies
-pip install -e .
-pip install -r requirements-dev.txt
-
-# Set up pre-commit hooks
-pre-commit install
-
-# Run tests
-pytest tests/ -v
+```
+docs/
+├── index.md                  # Main documentation hub
+├── technical-architecture.md # System architecture overview
+├── technical-reference.md    # Detailed module documentation (this file)
+├── ai-models.md              # AI model documentation
+├── api-reference.md          # API integration guide
+├── utilities.md              # Utility functions reference
+├── installation.md           # Installation instructions
+├── usage.md                  # User guide and examples
+└── contributing.md           # Contribution guidelines
 ```
 
-### Contribution Workflow
+### Getting Help
 
-```bash
-# Create feature branch
-git checkout -b feature/your-feature
+**Support Channels:**
+- GitHub Issues: Bug reports and feature requests
+- Discussion Forum: Community support and ideas
+- Documentation: Comprehensive guides and tutorials
+- Email Support: Direct assistance from the team
 
-# Make changes and commit
-git add .
-git commit -m "feat: add your feature"
+**Debugging Resources:**
+- Error code reference
+- Troubleshooting guide
+- Performance tuning tips
+- Common issues and solutions
 
-# Run tests and linting
-pytest tests/
-black src/
-flake8 src/
-
-# Push and create PR
-git push origin feature/your-feature
-```
-
-## 📞 Support and Contact
-
-**For documentation issues or questions:**
-- Email: support@visolearn.org
-- GitHub Issues: https://github.com/visolearn/visolearn-2/issues
-- Documentation: https://visolearn.org/docs
-
-**For development support:**
-- Developer Guide: https://visolearn.org/developers
-- API Reference: https://visolearn.org/api
-- Community Forum: https://forum.visolearn.org
-
-## 📜 License
-
-This technical reference documentation is part of the VisoLearn-2 project and is licensed under the MIT License. See the main README for full license details.
+This technical reference provides a comprehensive guide to the VisoLearn-2 system architecture, modules, and development patterns. For specific implementation details, refer to the individual module documentation and source code comments.

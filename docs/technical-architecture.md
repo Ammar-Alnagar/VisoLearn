@@ -19,10 +19,10 @@
 │  └── 📈 Visualization Utils                                 │
 ├─────────────────────────────────────────────────────────────┤
 │  🧠 AI Integration Layer                                     │
-│  ├── 🤖 OpenAI GPT-4 (Image Generation)                    │
-│  ├── 💬 Google Gemini (Text Processing)                    │
+│  ├── 🖼️ Google Imagen 4.0 Ultra (Image Generation)         │
+│  ├── 🤖 Google Gemini 2.5 Flash (Multimodal Analysis)      │
 │  ├── 📊 Custom Evaluation Engine                           │
-│  └── 📖 Comic Analysis Pipeline                            │
+│  └── 📖 Story Generation Pipeline                          │
 ├─────────────────────────────────────────────────────────────┤
 │  👁️ Computer Vision Layer                                  │
 │  ├── 📊 OpenCV Panel Detection                             │
@@ -36,6 +36,73 @@
 │  ├── 🔄 Session Persistence                                │
 │  └── 📊 Analytics Storage                                  │
 └─────────────────────────────────────────────────────────────┘
+```
+
+## 🎨 User Interface Architecture
+
+### Gradio-Based Web Interface
+
+**Main Components:**
+- **Logo Header**: Branding and visual identity
+- **Session Management Tabs**: Browser storage and filesystem operations
+- **Image Generation Panel**: Parameter input and image creation
+- **Description Practice Interface**: Chatbot-style interaction
+- **Progress Tracking Dashboard**: Real-time metrics and visualizations
+- **Data Export Options**: Multiple format support
+
+**Key UI Modules:**
+```python
+def create_interface():
+    """
+    Main interface creation function using Gradio Blocks.
+    Organizes UI into logical sections with proper state management.
+    """
+    with gr.Blocks(css=custom_css) as demo:
+        # State management
+        active_session = gr.State(DEFAULT_SESSION)
+        saved_sessions = gr.State([])
+        checklist_state = gr.State([])
+
+        # Logo and branding
+        with gr.Row(elem_id="logo-row"):
+            gr.Image(value=logo_path, show_label=False)
+
+        # Main content area
+        with gr.Row():
+            # Left column: Session management and generation
+            with gr.Column(scale=2):
+                session_management_tabs()
+                image_generation_panel()
+                description_practice_interface()
+
+            # Right column: Progress tracking
+            with gr.Column(scale=1):
+                progress_dashboard()
+                data_export_options()
+
+        # Event handlers and interactions
+        setup_event_handlers(demo)
+
+    return demo
+```
+
+**Session Management System:**
+- **Browser Storage**: Client-side persistence using localStorage
+- **Filesystem Storage**: Server-side file operations
+- **State Synchronization**: Cross-device session continuity
+- **Backup & Recovery**: Automatic data preservation
+
+**Interactive Elements:**
+- **Dynamic Checklists**: Real-time detail identification tracking
+- **Progress Visualizations**: Charts and achievement indicators
+- **Chat Interface**: Natural conversation flow with AI evaluation
+- **Export Capabilities**: JSON, PDF, CSV, and image formats
+
+### 🔁 Data Flow
+
+```
+User Input → AI Processing → Image Generation → User Interaction →
+Evaluation → Feedback → Progress Tracking → Analytics
 ```
 
 ## 🧩 Core Technologies
@@ -93,17 +160,19 @@
 
 ### 🧠 AI & Machine Learning
 
-**OpenAI GPT-4** - Advanced natural language processing
-- Image generation capabilities
-- Text understanding and analysis
-- Contextual response generation
-- Multi-modal learning support
+**Google Gemini 2.5 Flash** - Advanced multimodal AI model
+- Vision-language understanding (image analysis and description)
+- Text generation and evaluation
+- Conceptual understanding assessment
+- Educational content processing
+- Story generation and comprehension analysis
 
-**Google Gemini** - Text processing and evaluation
-- Semantic understanding
-- Conceptual analysis
-- Feedback generation
-- Language model integration
+**Google Imagen 4.0 Ultra** - High-quality image generation
+- Photorealistic and artistic image creation
+- Educational content generation
+- Multi-style support (Realistic, Cartoon, Watercolor, etc.)
+- Sequential story visualization
+- Autism-friendly content creation
 
 **Custom Evaluation Engine** - Specialized assessment algorithms
 - Autism-specific evaluation metrics
@@ -144,7 +213,7 @@
 ```mermaid
 graph TD
     A[👤 User Input: Age, Autism Level, Topic] --> B[📝 Prompt Generation Engine]
-    B --> C[🤖 OpenAI Image Generation]
+    B --> C[🖼️ Google Imagen Image Generation]
     C --> D[✅ Image Quality Validation]
     D --> E[🔍 Detail Extraction Engine]
     E --> F[🖼️ Display to User]
@@ -163,7 +232,7 @@ graph TD
 
 1. **User Input Collection**: Age, autism level, topic preferences
 2. **Prompt Generation**: AI-powered prompt creation based on user profile
-3. **Image Generation**: OpenAI GPT-4 creates educational images
+3. **Image Generation**: Google Imagen 4.0 Ultra creates educational images
 4. **Quality Validation**: Automated image quality assessment
 5. **Detail Extraction**: Identification of key visual elements
 6. **User Interaction**: Image display and description input
@@ -330,11 +399,17 @@ visolearn-2/
 
 ### 🤖 AI Service Integration
 
-**OpenAI GPT-4:**
-- Image generation API
-- Text processing endpoints
-- Model configuration options
-- Error handling and retries
+**Google Gemini 2.5 Flash:**
+- Multimodal vision-language API
+- Text generation and evaluation
+- Conceptual understanding assessment
+- Educational content processing
+
+**Google Imagen 4.0 Ultra:**
+- High-quality image generation API
+- Multi-style artistic rendering
+- Educational content creation
+- Sequential story visualization
 
 **Google Gemini:**
 - Text evaluation services

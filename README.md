@@ -1,4 +1,4 @@
-# 🌟 VisoLearn-2 - Visual Learning Platform for Autism Support
+# VisoLearn-2 - Visual Learning Platform for Autism Support
 
 <div align="center">
 
@@ -12,7 +12,7 @@
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 - [About](#about)
 - [Features](#features)
 - [Installation](#installation)
@@ -24,48 +24,48 @@
 
 ---
 
-## 🎯 About
+## About
 
 **VisoLearn-2** is an AI-powered educational platform designed specifically for children with Autism Spectrum Disorder (ASD). Our mission is to leverage cutting-edge artificial intelligence to create personalized, engaging, and therapeutically effective visual learning experiences that promote communication skills, narrative understanding, and social development.
 
-### 🧠 Core Philosophy
+### Core Philosophy
 - **Personalized Learning**: AI adapts to individual needs and learning styles
 - **Evidence-Based**: Built on autism education research and best practices
 - **Visual-First Approach**: Leverages visual processing strengths in autism
 - **Progressive Development**: Scaffolded learning with automatic difficulty adjustment
 - **Supportive Environment**: Positive reinforcement and autism-friendly design
 
-### 🎯 Target Audience
+### Target Audience
 - **Primary Users**: Children with ASD (ages 3-18) across all support levels
 - **Secondary Users**: Special education teachers, SLPs, OTs, behavioral analysts, parents, and caregivers
 
 ---
 
-## ✨ Features
+## Features
 
-### 🖼️ Image Description Practice
+### Image Description Practice
 - **Adaptive Image Generation**: 8+ visual styles with 5 progressive difficulty levels
 - **Interactive Evaluation**: Real-time feedback with semantic understanding analysis
 - **Hint System**: Contextual guidance that promotes learning without spoon-feeding
 
-### 📖 Comic Story Generator
+### Comic Story Generator
 - **Multi-Panel Creation**: Automated story generation with narrative coherence
 - **Panel Analysis**: Computer vision-powered panel extraction and analysis
 - **Sequential Storytelling**: Scene-by-scene comprehension activities
 
-### 📊 Analytics Dashboard
+### Analytics Dashboard
 - **Progress Tracking**: Real-time metrics on engagement and skill development
 - **Export Options**: Multiple formats for reporting and sharing progress
 - **Achievement System**: Milestone recognition and motivation
 
-### 💾 Data Management
+### Data Management
 - **Cloud Integration**: Google Drive synchronization for seamless access
 - **Multi-Format Export**: JSON, PDF, CSV, and ZIP export options
 - **Privacy-First**: Local-first data storage with optional cloud sync
 
 ---
 
-## 🚀 Installation
+## Installation
 
 ### Prerequisites
 - Python 3.8 or higher
@@ -96,7 +96,7 @@ For detailed installation instructions, see our [Installation Guide](./docs/inst
 
 ---
 
-## 🎮 Usage
+## Usage
 
 ### Getting Started
 1. Launch the application
@@ -113,23 +113,23 @@ For detailed usage instructions, see our [Usage Guide](./docs/usage.md).
 
 ---
 
-## 📚 Documentation
+## Documentation
 
 Comprehensive documentation is available in our [docs](./docs/) folder:
 
-- [🏠 Home](./docs/index.md) - Main project overview and detailed documentation
-- [🛠️ Installation Guide](./docs/installation.md) - Complete setup instructions
-- [🎮 Usage Guide](./docs/usage.md) - How to use VisoLearn-2 effectively
-- [🤝 Contributing Guide](./docs/contributing.md) - How to contribute to the project
-- [🏗️ Technical Architecture](./docs/technical-architecture.md) - System design and components
-- [⚙️ Technical Reference](./docs/technical-reference.md) - Detailed technical specifications
-- [🎓 Research & Evidence Base](./docs/index.md#research--evidence-base) - Scientific foundations
+- [Home](./docs/index.md) - Main project overview and detailed documentation
+- [Installation Guide](./docs/installation.md) - Complete setup instructions
+- [Usage Guide](./docs/usage.md) - How to use VisoLearn-2 effectively
+- [Contributing Guide](./docs/contributing.md) - How to contribute to the project
+- [Technical Architecture](./docs/technical-architecture.md) - System design and components
+- [Technical Reference](./docs/technical-reference.md) - Detailed technical specifications
+- [Research & Evidence Base](./docs/index.md#research--evidence-base) - Scientific foundations
 
 **Project Documentation**: [Complete Project Documentation](./PROJECT_DOCUMENTATION.md) - Technical overview of all system components.
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Core Technologies
 - **Python 3.8+**: Backend and core logic
@@ -151,7 +151,7 @@ Comprehensive documentation is available in our [docs](./docs/) folder:
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions from the community! Please see our [Contributing Guide](./docs/contributing.md) for details on how you can help improve VisoLearn-2.
 
@@ -182,7 +182,7 @@ pytest tests/ -v
 
 ---
 
-## 🏆 Recognition & Impact
+## Recognition & Impact
 
 - **Awards**: Best Educational Technology for Special Needs (2024), Innovation in Autism Support Technology
 - **Impact**: 5,000+ children with autism supported, 40% average vocabulary improvement
@@ -192,7 +192,7 @@ For more details on our research foundation and clinical validation, visit our [
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
 
@@ -222,7 +222,7 @@ SOFTWARE.
 
 ---
 
-## 📞 Contact
+## Contact
 
 For questions, support, or collaboration opportunities:
 
@@ -231,4 +231,4 @@ For questions, support, or collaboration opportunities:
 
 ---
 
-**🌟 VisoLearn-2 - Empowering children with autism through innovative technology!**
+**VisoLearn-2 - Empowering children with autism through innovative technology!**

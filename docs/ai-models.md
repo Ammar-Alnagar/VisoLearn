@@ -1,10 +1,10 @@
-# 🧠 Models and AI Documentation
+# Models and AI Documentation
 
-## 📋 Overview
+## Overview
 
 This document provides comprehensive documentation for the AI models, machine learning components, and AI integration systems in VisoLearn-2. It covers the image generation models, evaluation systems, story generation models, and all related AI functionality.
 
-## 🏗️ AI Architecture Overview
+## AI Architecture Overview
 
 ### Model Integration Layers
 
@@ -44,126 +44,120 @@ VisoLearn-2 AI Layer
 - Image Processing (Pillow)
 - Natural Language Processing (Built-in)
 
-## 🤖 External AI Model Integration
+## External AI Model Integration
 
-### OpenAI Integration
+### Google Generative AI (Gemini) Integration
 
-#### DALL-E Image Generation
+#### Imagen 4.0 Ultra Image Generation
 
-**Primary Model:** `dall-e-2` and `dall-e-3`
+**Primary Model:** `models/imagen-4.0-ultra-generate-preview-06-06`
 
 ```python
-import openai
-from config import OPENAI_API_KEY
+import io
+import base64
+import os
+from PIL import Image
+from google import genai
+from io import BytesIO
+from config import GOOGLE_API_KEY
 
-openai.api_key = OPENAI_API_KEY
-
-def generate_image_with_openai(prompt, style_params=None):
+def generate_image_fn(selected_prompt, model="models/imagen-4.0-ultra-generate-preview-06-06", output_path=None):
     """
-    Generate an image using OpenAI's DALL-E models
-    
+    Generate an image from the prompt via the Google Imagen 4.0 Ultra API.
+    Convert the image to a data URL and optionally save it to a file.
+
     Args:
-        prompt (str): Text description of desired image
-        style_params (dict): Style-specific parameters
-    
+        selected_prompt (str): The prompt to generate the image from.
+        model (str): The Imagen model to use. Defaults to "models/imagen-4.0-ultra-generate-preview-06-06".
+        output_path (str, optional): If provided, saves the image to this path. Defaults to None.
+
     Returns:
-        dict: Image generation response with URL and metadata
+        PIL.Image.Image or None: The generated image as a PIL Image object, or None on error.
     """
-    # Format prompt based on style and difficulty
-    formatted_prompt = format_image_prompt(prompt, style_params)
-    
     try:
-        response = openai.Image.create(
-            prompt=formatted_prompt,
-            n=1,
-            size="1024x1024",
-            response_format="url",
-            model="dall-e-3"  # Use DALL-E 3 for higher quality
+        # Initialize Google GenAI client
+        client = genai.Client(api_key=GOOGLE_API_KEY)
+
+        # Generate image using Google Imagen 4.0 Ultra
+        response = client.models.generate_images(
+            model=model,
+            prompt=selected_prompt,
+            config=dict(
+                number_of_images=1,
+                output_mime_type="image/jpeg",
+                person_generation="ALLOW_ADULT",
+                aspect_ratio="1:1",
+            )
         )
-        return process_image_response(response)
-    except openai.error.RateLimitError:
-        # Fallback to DALL-E 2 if rate limited
-        response = openai.Image.create(
-            prompt=formatted_prompt,
-            n=1,
-            size="1024x1024",
-            response_format="url",
-            model="dall-e-2"
-        )
-        return process_image_response(response)
+
+        # Check if we got any images
+        if not response.generated_images or len(response.generated_images) == 0:
+            print("No images were generated")
+            return None
+
+        # Get the first (and only) generated image
+        image_bytes = response.generated_images[0].image.image_bytes
+
+        # Create PIL Image from bytes
+        image = Image.open(BytesIO(image_bytes))
+
+        # Convert to base64 for data URL
+        buffered = io.BytesIO()
+        image.save(buffered, format="JPEG")
+        img_bytes = buffered.getvalue()
+        img_b64 = base64.b64encode(img_bytes).decode("utf-8")
+        global_image_data_url = f"data:image/jpeg;base64,{img_b64}"
+
+        print(f"Successfully generated image with prompt: {selected_prompt[:50]}...")
+        return image
+    except Exception as e:
+        print(f"Error generating image: {str(e)}")
+        return None
 ```
 
-**Prompt Optimization for DALL-E:**
+**Prompt Optimization for Imagen 4.0 Ultra:**
 ```python
 def format_image_prompt(base_prompt, style_params):
     """
-    Format prompt for optimal DALL-E performance
-    
+    Format prompt for optimal Google Imagen performance
+
     Args:
         base_prompt (str): Basic image concept
         style_params (dict): Style and difficulty parameters
-    
+
     Returns:
         str: Optimized prompt string
     """
     # Difficulty-based detail level
     difficulty_details = {
-        "very_simple": "simple, basic shapes, minimal details",
-        "simple": "clear, basic details, colorful",
-        "moderate": "detailed, colorful, educational",
-        "detailed": "highly detailed, educational, rich colors",
-        "very_detailed": "extremely detailed, educational, rich content"
+        "Very Simple": "simple, basic shapes, minimal details, clear and uncluttered",
+        "Simple": "clear, basic details, colorful, easy to understand",
+        "Moderate": "detailed, colorful, educational, moderate complexity",
+        "Detailed": "highly detailed, educational, rich colors, complex elements",
+        "Very Detailed": "extremely detailed, educational, rich content, maximum complexity"
     }
-    
-    # Style-specific instructions
+
+    # Style-specific instructions (matching config.py IMAGE_STYLES)
     style_instructions = {
-        "realistic": "photorealistic, natural lighting",
-        "cartoon": "colorful cartoon, friendly characters",
-        "watercolor": "watercolor painting style",
-        "3d_rendering": "3D rendered, computer graphics"
+        "Realistic": "photorealistic, natural lighting, detailed textures",
+        "Illustration": "digital illustration, artistic, vibrant colors",
+        "Cartoon": "colorful cartoon, friendly characters, bold lines",
+        "Watercolor": "watercolor painting style, soft edges, artistic",
+        "3D Rendering": "3D computer rendering, modern graphics, detailed lighting"
     }
-    
+
     # Combine all elements
     optimized_prompt = (
         f"{base_prompt}, "
         f"{style_instructions.get(style_params['style'], '')}, "
         f"{difficulty_details.get(style_params['difficulty'], '')}, "
-        f"autism-friendly, educational, appropriate for children"
+        f"autism-friendly, educational, appropriate for children, positive and engaging"
     )
-    
+
     return optimized_prompt
 ```
 
-#### GPT Text Processing
-
-```python
-def generate_text_completion(prompt, max_tokens=200, temperature=0.7):
-    """
-    Generate text using OpenAI's GPT models
-    
-    Args:
-        prompt (str): Input text for completion
-        max_tokens (int): Maximum tokens in response
-        temperature (float): Creativity parameter (0.0-1.0)
-    
-    Returns:
-        str: Generated text completion
-    """
-    response = openai.Completion.create(
-        model="text-davinci-003",  # Use most capable model
-        prompt=prompt,
-        max_tokens=max_tokens,
-        temperature=temperature,
-        top_p=1.0,
-        frequency_penalty=0.5,
-        presence_penalty=0.5
-    )
-    return response.choices[0].text.strip()
-```
-
-### Google Generative AI (Gemini) Integration
-
-#### Text Generation and Evaluation
+#### Gemini Text Processing
 
 ```python
 import google.generativeai as genai
@@ -172,77 +166,191 @@ from config import GOOGLE_API_KEY
 genai.configure(api_key=GOOGLE_API_KEY)
 model = genai.GenerativeModel('gemini-pro')
 
-def evaluate_user_description(user_description, expected_details, difficulty_level):
+def generate_text_completion(prompt, max_tokens=200, temperature=0.7):
     """
-    Use Google Gemini to evaluate user's image description
-    
+    Generate text using Google's Gemini model
+
     Args:
-        user_description (str): User's description of the image
-        expected_details (list): Expected details in the image
-        difficulty_level (str): Current difficulty level
-    
+        prompt (str): Input text for completion
+        max_tokens (int): Maximum tokens in response (approximated)
+        temperature (float): Creativity parameter (0.0-1.0)
+
     Returns:
-        dict: Evaluation results with scores and feedback
+        str: Generated text completion
     """
-    evaluation_prompt = f"""
-    You are an autism education specialist evaluating a child's description of an educational image.
-    
-    USER DESCRIPTION: {user_description}
-    
-    EXPECTED DETAILS: {', '.join(expected_details)}
-    
-    DIFFICULTY LEVEL: {difficulty_level}
-    
-    Please provide:
-    1. Semantic accuracy score (0-100)
-    2. List of correctly identified details
-    3. List of missed details
-    4. Constructive, encouraging feedback suitable for the child
-    5. Suggested next steps for improvement
-    
-    Format your response in JSON with keys: accuracy, identified_details, missed_details, feedback, next_steps
-    """
-    
     try:
-        response = model.generate_content(evaluation_prompt)
-        return parse_gemini_evaluation(response.text)
+        response = model.generate_content(
+            prompt,
+            generation_config=genai.types.GenerationConfig(
+                temperature=temperature,
+                max_output_tokens=max_tokens,
+            )
+        )
+        return response.text.strip()
     except Exception as e:
-        print(f"Gemini evaluation error: {e}")
-        return fallback_evaluation(user_description, expected_details)
+        print(f"Gemini text generation error: {e}")
+        return ""
 ```
 
-#### Story Analysis with Gemini
+### OpenAI Integration (Fallback/Alternative)
+
+#### Gemini Vision for Image Analysis and Evaluation
 
 ```python
-def analyze_story_comprehension(story_panels, user_analysis):
+import base64
+import json
+import re
+from google.generativeai import GenerativeModel, Content, Part
+from config import GOOGLE_API_KEY
+
+def generate_detailed_description(image_input, prompt, difficulty, topic_focus):
     """
-    Analyze user's understanding of a comic story
-    
+    Generate a detailed description of the image using Gemini Vision (gemini-2.5-flash).
+    Converts image to base64 and analyzes with multimodal capabilities.
+
     Args:
-        story_panels (list): Story panel descriptions
-        user_analysis (str): User's analysis of the story
-    
+        image_input: PIL Image or data URL
+        prompt (str): Original generation prompt
+        difficulty (str): Difficulty level
+        topic_focus (str): Educational topic
+
     Returns:
-        dict: Comprehension analysis results
+        str: Detailed image description
     """
-    analysis_prompt = f"""
-    Analyze the user's comprehension of a comic story.
-    
-    STORY PANELS: {story_panels}
-    
-    USER ANALYSIS: {user_analysis}
-    
-    Evaluate the user's understanding of:
-    1. Narrative sequence and flow
-    2. Character development and relationships
-    3. Thematic elements
-    4. Cause and effect relationships
-    
-    Provide: comprehension_score, strengths, areas_for_improvement, feedback
+    try:
+        # Convert image to base64
+        if hasattr(image_input, 'save'):  # PIL Image
+            buffer = io.BytesIO()
+            image_input.save(buffer, format="PNG")
+            img_bytes = buffer.getvalue()
+            base64_img = base64.b64encode(img_bytes).decode('utf-8')
+        elif isinstance(image_input, str) and image_input.startswith('data:image'):
+            base64_img = image_input.split(",")[1]
+
+        query = f"""
+        You are an expert educator specializing in teaching users with autism.
+        Please provide a detailed description of this image...
+
+        [Full detailed prompt for educational image analysis]
+        """
+
+        vision_model = GenerativeModel('gemini-2.5-flash')
+        image_part = Part(inline_data={"mime_type": "image/png", "data": base64.b64decode(base64_img)})
+        text_part = Part(text=query)
+        multimodal_content = Content(parts=[image_part, text_part])
+        response = vision_model.generate_content(multimodal_content)
+        return response.text.strip()
+    except Exception as e:
+        print(f"Error in generate_detailed_description: {str(e)}")
+        return f"Error processing image: {str(e)}"
+
+def extract_key_details(image_input, prompt, topic_focus):
     """
-    
-    response = model.generate_content(analysis_prompt)
-    return parse_story_analysis(response.text)
+    Extract key details directly from the image using Gemini Vision.
+    Returns a list of 5-15 key elements/details from the image.
+
+    Args:
+        image_input: PIL Image or data URL
+        prompt (str): Original prompt
+        topic_focus (str): Topic focus
+
+    Returns:
+        list: Key details as strings
+    """
+    try:
+        # Convert to base64 (same as above)
+        # ...
+
+        query = f"""
+        You are analyzing an educational image created for a person with autism...
+        Please extract a list of unique key details... minimum 5, max 15...
+
+        Format your response as a JSON array of strings...
+        """
+
+        vision_model = GenerativeModel('gemini-2.5-flash')
+        # Create multimodal content and generate
+        # ...
+
+        # Parse JSON response
+        json_match = re.search(r'\[.*\]', response.text, re.DOTALL)
+        if json_match:
+            key_details = json.loads(json_match.group(0))
+            return key_details
+        return ["object in image", "color", "shape", "background"]
+    except Exception as e:
+        print(f"Error in extract_key_details: {str(e)}")
+        return ["Error processing image", "Please try again"]
+```
+
+#### Conceptual Evaluation with Gemini
+
+```python
+def compare_details_chat_fn(user_details, active_session, global_image_data_url, global_image_description):
+    """
+    Evaluate the user's description with strong focus on conceptual understanding
+    and semantic meaning, rather than exact word matching.
+    """
+    # Build comprehensive evaluation prompt with session context
+    message_text = f"""
+    You are a highly specialized, supportive, and insightful teacher evaluating...
+
+    ### Image Context:
+    - Original Prompt: {active_session.get('prompt', 'No prompt available')}
+    - Detailed Image Description: {global_image_description}
+
+    ### Learning Task State:
+    {key_details_text}  # Focus evaluation on REMAINING details
+
+    ### User's Current Description (Analyze this carefully):
+    '{user_details}'
+
+    ### CONCEPTUAL MATCHING RULES (ABSOLUTELY CRITICAL):
+    1. PRIORITIZE MEANING OVER WORDS: Focus entirely on SEMANTIC MEANING...
+    2. CONCEPTUAL EQUIVALENCE: Does the user's statement describe the core concept...
+    3. FLEXIBLE INTERPRETATION: Individuals with autism may use unique phrasing...
+
+    ### RESPONSE REQUIREMENTS:
+    Provide your evaluation STRICTLY as a valid JSON object...
+    """
+
+    model = GenerativeModel('gemini-2.5-flash')
+    response = model.generate_content(message_text)
+
+    return response.text  # Returns JSON with feedback, newly_identified_details, hint, score, advance_difficulty
+```
+
+#### Story Generation and Analysis with Gemini
+
+```python
+def generate_story_premise(topic_focus, difficulty, age, autism_level):
+    """
+    Generate a story premise based on user parameters using Gemini.
+    Returns JSON with premise, educational_focus, num_scenes, and scenes array.
+    """
+    scene_counts = {
+        "Very Simple": 2, "Simple": 3, "Moderate": 4,
+        "Advanced": 4, "Complex": 5
+    }
+
+    num_scenes = max(2, min(5, scene_counts.get(difficulty, 3)))
+
+    query = f"""
+    You are an educational story designer for children with autism...
+    Develop a simple narrative with clear beginning, middle, and end...
+
+    FORMAT YOUR RESPONSE AS A VALID JSON OBJECT with fields: premise, educational_focus, num_scenes, scenes...
+    """
+
+    model = GenerativeModel('gemini-2.5-flash')
+    response = model.generate_content(query)
+
+    # Parse JSON response
+    json_match = re.search(r'\{[\s\S]*\}', response.text, re.DOTALL)
+    if json_match:
+        story_data = json.loads(json_match.group(0))
+        return story_data
+    # Return fallback structure
 ```
 
 ### Hugging Face Integration
@@ -271,27 +379,119 @@ def get_alternative_generation(prompt, model_name):
     return result
 ```
 
-## 📊 Custom Evaluation Engine
+## Custom Evaluation Engine
 
-### Semantic Analysis System
+#### Gemini Vision-Based Evaluation System
 
-#### Core Evaluation Components
+The evaluation system uses Google Gemini 2.5 Flash with vision capabilities to provide sophisticated, autism-friendly assessment of user descriptions.
 
 ```python
-class EvaluationEngine:
+def compare_details_chat_fn(user_details, active_session, global_image_data_url, global_image_description):
     """
-    Custom evaluation engine for semantic analysis and feedback generation
+    Evaluate the user's description with strong focus on conceptual understanding
+    and semantic meaning, rather than exact word matching.
+
+    This function implements a comprehensive evaluation pipeline that:
+    1. Builds detailed context from session history
+    2. Applies conceptual matching rules optimized for autism
+    3. Provides encouraging, specific feedback
+    4. Tracks progress through identified details
+    5. Suggests difficulty advancement when appropriate
     """
-    
-    def __init__(self):
-        self.similarity_threshold = 0.7
-        self.detail_weights = {
-            "main_object": 0.3,
-            "color": 0.2,
-            "size": 0.15,
-            "position": 0.15,
-            "action": 0.2
-        }
+
+    # Build comprehensive evaluation prompt with session context
+    message_text = f"""
+    You are a highly specialized, supportive teacher evaluating an individual with autism...
+
+    ### CONCEPTUAL MATCHING RULES (ABSOLUTELY CRITICAL):
+    1. PRIORITIZE MEANING OVER WORDS: Focus on SEMANTIC MEANING and underlying IDEA
+    2. CONCEPTUAL EQUIVALENCE: Accept synonyms, paraphrasing, or descriptive phrases
+    3. FLEXIBLE INTERPRETATION: Interpret generously, assume competence
+    4. GENEROSITY IS KEY: Err on the side of giving credit for conceptual understanding
+
+    ### RESPONSE REQUIREMENTS:
+    Return JSON with: feedback, newly_identified_details, hint, score, advance_difficulty
+    """
+
+    model = GenerativeModel('gemini-2.5-flash')
+    response = model.generate_content(message_text)
+
+    return response.text  # JSON evaluation results
+
+def parse_evaluation(evaluation_text, active_session):
+    """
+    Parse LLM evaluation JSON and update session state.
+    Handles robust JSON extraction with fallbacks.
+    """
+    try:
+        # Extract JSON from response (handles markdown formatting)
+        json_match = re.search(r'```(?:json)?\s*(\{[\s\S]*?\})\s*```|(\{[\s\S]*?\})(?=\s*$)', evaluation_text, re.DOTALL)
+
+        if json_match:
+            json_str = json_match.group(1) or json_match.group(2)
+            evaluation = json.loads(json_str)
+        else:
+            evaluation = extract_evaluation_manually(evaluation_text)
+
+        # Process and validate evaluation data
+        feedback = evaluation.get("feedback", "Great job describing!")
+        newly_identified_details = evaluation.get("newly_identified_details", [])
+        score = evaluation.get("score", 0)
+        advance_difficulty = evaluation.get("advance_difficulty", False)
+
+        # Update session with newly identified details
+        identified_details = active_session.get("identified_details", [])
+        for detail in newly_identified_details:
+            if detail in active_session.get("key_details", []) and detail not in identified_details:
+                identified_details.append(detail)
+
+        # Determine difficulty advancement
+        should_advance = advance_difficulty or check_progress_threshold(active_session)
+
+        return feedback, new_difficulty, should_advance, details_added, score
+
+    except Exception as e:
+        print(f"Error processing evaluation: {str(e)}")
+        return safe_fallback_response()
+```
+
+#### Key Details Extraction from Images
+
+```python
+def extract_key_details(image_input, prompt, topic_focus):
+    """
+    Extract 5-15 key observable details from educational images using Gemini Vision.
+    Focuses on concrete, visible elements that children can identify.
+    """
+    try:
+        # Convert image to base64 for multimodal processing
+        base64_img = convert_image_to_base64(image_input)
+
+        query = f"""
+        You are analyzing an educational image created for a person with autism...
+        Please extract a list of unique key details... minimum 5, max 15...
+        Focus on concrete, visible elements rather than abstract concepts.
+        Format as JSON array: ["detail1", "detail2", ...]
+        """
+
+        vision_model = GenerativeModel('gemini-2.5-flash')
+        image_part = Part(inline_data={"mime_type": "image/png", "data": base64.b64decode(base64_img)})
+        text_part = Part(text=query)
+        multimodal_content = Content(parts=[image_part, text_part])
+        response = vision_model.generate_content(multimodal_content)
+
+        # Parse JSON array from response
+        json_match = re.search(r'\[.*\]', response.text, re.DOTALL)
+        if json_match:
+            key_details = json.loads(json_match.group(0))
+            return key_details
+
+        return ["object in image", "color", "shape", "background"]
+
+    except Exception as e:
+        print(f"Error in extract_key_details: {str(e)}")
+        return ["Error processing image", "Please try again"]
+```
     
     def evaluate_description(self, user_description, expected_details, difficulty_level):
         """
@@ -459,7 +659,7 @@ class ProgressTracker:
             return "longer period"
 ```
 
-## 🎨 Prompt Generation System
+## Prompt Generation System
 
 ### Dynamic Prompt Creation
 
@@ -565,66 +765,146 @@ class PromptGenerator:
         return story_prompt
 ```
 
-## 📖 Story Generation Models
+## Story Generation Models
 
-### Multi-Agent Story Creation
+### Gemini-Powered Sequential Story Creation
 
 ```python
-class StoryGenerator:
+def generate_story_premise(topic_focus, difficulty, age, autism_level):
     """
-    Generate multi-panel stories with narrative coherence
+    Generate a story premise based on user parameters using Gemini.
+    Creates structured JSON with premise, educational focus, scene count, and scene details.
+
+    Args:
+        topic_focus (str): Educational topic for the story
+        difficulty (str): Complexity level (Very Simple to Complex)
+        age (str): Child's age
+        autism_level (str): Autism support level
+
+    Returns:
+        dict: Story structure with scenes array
     """
-    
-    def __init__(self):
-        self.prompt_generator = PromptGenerator()
-        self.ai_models = {
-            "concept": self.generate_concept,
-            "characters": self.generate_characters,
-            "plot": self.generate_plot,
-            "panels": self.generate_panels
-        }
-    
-    def generate_full_story(self, topic, num_panels, style, difficulty):
-        """
-        Generate a complete multi-panel story
-        
-        Args:
-            topic (str): Story topic/focus
-            num_panels (int): Number of comic panels
-            style (str): Visual style
-            difficulty (str): Story complexity level
-        
-        Returns:
-            dict: Complete story with all panels and metadata
-        """
-        # Step 1: Generate story concept
-        concept = self.generate_concept(topic, difficulty)
-        
-        # Step 2: Develop characters
-        characters = self.generate_characters(concept, num_panels)
-        
-        # Step 3: Create plot structure
-        plot = self.generate_plot(concept, characters, num_panels)
-        
-        # Step 4: Generate individual panels
-        panels = self.generate_panels(plot, characters, style, difficulty, num_panels)
-        
-        # Step 5: Validate story coherence
-        if not self.validate_story_coherence(panels):
-            # Regenerate if coherence is insufficient
-            panels = self.regenerate_with_coherence_validation(plot, characters, style, difficulty, num_panels)
-        
-        return {
-            "topic": topic,
-            "num_panels": num_panels,
-            "style": style,
-            "difficulty": difficulty,
-            "concept": concept,
-            "characters": characters,
-            "plot": plot,
-            "panels": panels,
-            "created_at": self.get_timestamp()
-        }
+    # Calculate appropriate number of scenes based on parameters
+    scene_counts = {
+        "Very Simple": 2, "Simple": 3, "Moderate": 4,
+        "Advanced": 4, "Complex": 5
+    }
+
+    # Adjust for autism level
+    level_adjustments = {"Level 1": 0, "Level 2": -1, "Level 3": -2}
+    base_count = scene_counts.get(difficulty, 3)
+    adjustment = level_adjustments.get(autism_level, 0)
+    num_scenes = max(2, min(5, base_count + adjustment))
+
+    query = f"""
+    You are an educational story designer for children with autism...
+    Create a simple story premise related to '{topic_focus}' that can be told in {num_scenes} sequential images.
+
+    IMPORTANT: Each scene must visually connect to create a coherent story flow.
+    Maintain consistent characters throughout all scenes.
+
+    FORMAT AS JSON: premise, educational_focus, num_scenes, scenes array
+    """
+
+    model = GenerativeModel('gemini-2.5-flash')
+    response = model.generate_content(query)
+
+    # Parse JSON response with robust error handling
+    try:
+        json_match = re.search(r'\{[\s\S]*\}', response.text, re.DOTALL)
+        if json_match:
+            story_data = json.loads(json_match.group(0))
+            return story_data
+    except Exception as e:
+        print(f"Error parsing story premise: {e}")
+
+    # Return fallback structure
+    return {
+        "premise": f"A simple story about {topic_focus}",
+        "educational_focus": topic_focus,
+        "num_scenes": num_scenes,
+        "scenes": [{"scene_number": i+1, "description": f"Scene {i+1}",
+                   "key_elements": ["character", "setting", "action"],
+                   "transition": "The story continues..."} for i in range(num_scenes)]
+    }
+
+def generate_scene_prompt(scene_data, story_premise, difficulty, age, autism_level, image_style="Comic"):
+    """
+    Generate optimized image prompt for individual story scenes.
+    Emphasizes visual continuity and character consistency across panels.
+    """
+    scene_number = scene_data.get("scene_number", 1)
+    scene_description = scene_data.get("description", "")
+    key_elements = scene_data.get("key_elements", [])
+
+    continuity_instruction = """
+    CRITICAL STORY CONTINUITY REQUIREMENTS:
+    - Characters MUST maintain exact same appearance across all scenes
+    - Settings should maintain consistent visual style and color palette
+    - Visual elements should be identical in style and appearance
+    - Use matching artistic style, lighting, and perspective
+    """
+
+    query = f"""
+    Create an image generation prompt for scene {scene_number} in a sequence...
+
+    STORY CONTEXT: "{story_premise}"
+    SCENE: "{scene_description}"
+    KEY ELEMENTS: {', '.join(key_elements)}
+
+    {continuity_instruction}
+
+    REQUIREMENTS:
+    - Start with "A {image_style.lower()} scene showing [description]"
+    - Include 8-10 specific visual elements with positions
+    - Maintain visual consistency with previous scenes
+    - At least 150 words, end with "8k resolution, professional {image_style.lower()}"
+    """
+
+    model = GenerativeModel('gemini-2.5-flash')
+    response = model.generate_content(query)
+    return response.text.strip()
+
+def evaluate_story_understanding(user_description, story_data, current_scene, active_session):
+    """
+    Evaluate child's understanding of story comprehension, not just image details.
+    Returns JSON with multiple comprehension metrics.
+    """
+    scene_info = story_data["scenes"][current_scene-1]
+    premise = story_data.get("premise", "")
+
+    query = f"""
+    Evaluate a child with autism level {active_session.get('autism_level')} describing a story...
+
+    STORY: "{premise}"
+    CURRENT SCENE: "{scene_info.get('description', '')}"
+    CHILD'S DESCRIPTION: "{user_description}"
+
+    Evaluate understanding of:
+    1. Current scene details
+    2. Story connections
+    3. Character continuity
+    4. Cause-effect relationships
+    5. Emotional understanding
+
+    Return JSON: feedback, story_understanding_score, scene_details_score,
+    narrative_connection_score, identified_elements, missed_elements,
+    hint, question_prompt, advance_to_next_scene
+    """
+
+    model = GenerativeModel('gemini-2.5-flash')
+    response = model.generate_content(query)
+
+    # Parse and return evaluation JSON
+    try:
+        json_match = re.search(r'\{[\s\S]*\}', response.text, re.DOTALL)
+        if json_match:
+            return json.loads(json_match.group(0))
+    except Exception as e:
+        print(f"Error parsing story evaluation: {e}")
+
+    return fallback_evaluation_structure()
+```
     
     def generate_concept(self, topic, difficulty):
         """
@@ -783,7 +1063,7 @@ class StoryGenerator:
         return 0.85  # Placeholder score
 ```
 
-## 👁️ Computer Vision Components
+## Computer Vision Components
 
 ### Panel Detection with OpenCV
 
@@ -911,7 +1191,7 @@ class PanelDetector:
         return image
 ```
 
-## 🚀 AI Response Processing
+## AI Response Processing
 
 ### Response Validation and Filtering
 
@@ -1101,7 +1381,7 @@ class AIResponseProcessor:
             return result
 ```
 
-## 🔧 Model Configuration and Optimization
+## Model Configuration and Optimization
 
 ### Performance Optimization
 
@@ -1182,7 +1462,7 @@ class ModelOptimizer:
         return asyncio.run(process_batch())
 ```
 
-## 🛡️ Safety and Moderation
+## Safety and Moderation
 
 ### Content Moderation System
 
@@ -1259,7 +1539,7 @@ class ContentModerator:
             }
 ```
 
-## 📊 Analytics and Model Performance
+## Analytics and Model Performance
 
 ### Model Usage Analytics
 
@@ -1331,7 +1611,7 @@ class ModelAnalytics:
         return export_filename
 ```
 
-## 🚀 Future AI Enhancements
+## Future AI Enhancements
 
 ### Planned AI Improvements
 
@@ -1350,7 +1630,7 @@ class ModelAnalytics:
 - Predictive AI for skill development
 - Multilingual support expansion
 
-## 📞 Troubleshooting
+## Troubleshooting
 
 ### Common AI Issues
 
@@ -1369,7 +1649,7 @@ class ModelAnalytics:
 - Implement fallback models
 - Optimize request batching
 
-## 📚 Additional Resources
+## Additional Resources
 
 **AI Model Documentation:**
 - OpenAI API: https://platform.openai.com/docs/

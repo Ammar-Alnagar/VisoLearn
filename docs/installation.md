@@ -1,215 +1,319 @@
-# 🛠️ Installation & Setup
+# 🛠️ Installation and Setup Guide
 
-## 📋 Prerequisites & System Requirements
+## 📋 Overview
 
-### 🔰 Minimum Requirements
-- **🖥️ Operating System**: Windows 10+, macOS 10.14+, Ubuntu 18.04+
-- **🐍 Python**: 3.8 or higher (3.10+ recommended)
-- **💾 RAM**: 4GB minimum, 8GB recommended
-- **💾 Storage**: 2GB free space for installation, 5GB for full usage
-- **🌐 Internet**: Stable connection for AI API calls (10 Mbps+ recommended)
-- **🌐 Browser**: Chrome 80+, Firefox 75+, Safari 13+, Edge 80+
+This guide provides comprehensive instructions for installing, configuring, and setting up VisoLearn-2 for development, testing, and production environments.
 
-### 🚀 Recommended Requirements
-- **💾 RAM**: 16GB for optimal performance
-- **💾 Storage**: SSD with 10GB+ free space
-- **🌐 Internet**: High-speed broadband (50 Mbps+)
-- **🖥️ GPU**: CUDA-compatible GPU for enhanced performance (optional)
-- **🖥️ CPU**: Quad-core processor or better
+## 📦 System Requirements
 
-### 🔧 Supported Platforms
+### Minimum Requirements
+- **Operating System**: Windows 10+, macOS 10.14+, Ubuntu 18.04+
+- **Python**: 3.8+ (3.10+ recommended)
+- **RAM**: 4GB (8GB recommended)
+- **Storage**: 2GB (5GB for full usage)
+- **Internet**: 10 Mbps+ (for AI API calls)
 
-**Desktop Platforms:**
-- ✅ Windows 10/11 (64-bit)
-- ✅ macOS 10.14+ (Mojave and later)
-- ✅ Ubuntu 18.04+ and other Debian-based Linux distributions
-- ✅ Fedora 30+ and other RPM-based Linux distributions
+### Recommended Requirements
+- **Operating System**: Windows 11, macOS 12+, Ubuntu 22.04+
+- **Python**: 3.11+
+- **RAM**: 16GB
+- **Storage**: SSD with 10GB+ free space
+- **Internet**: 50 Mbps+ broadband
+- **GPU**: CUDA-compatible (optional for enhanced performance)
 
-**Cloud Platforms:**
-- ✅ AWS EC2 (Ubuntu/Amazon Linux)
-- ✅ Google Cloud Platform
-- ✅ Microsoft Azure
-- ✅ DigitalOcean Droplets
+## 🐍 Python Installation
 
-## 📦 Installation Methods
+### Install Python
 
-### 🏠 Method 1: Standard Local Installation
+**Windows:**
+1. Download Python from https://www.python.org/downloads/
+2. Run the installer
+3. Check "Add Python to PATH" during installation
+4. Complete the installation
 
-#### 📥 Step 1: Clone the Repository
+**macOS:**
 ```bash
-git clone https://github.com/your-username/VisoLearn-2.git
-cd VisoLearn-2
+# Using Homebrew
+brew install python
+
+# Verify installation
+python3 --version
 ```
 
-**Troubleshooting:**
-- If you get `git: command not found`, install Git first:
-  - Windows: Download from [git-scm.com](https://git-scm.com/)
-  - macOS: `brew install git`
-  - Linux: `sudo apt install git` (Ubuntu/Debian) or `sudo dnf install git` (Fedora)
-
-#### 🐍 Step 2: Create Virtual Environment
+**Linux (Ubuntu/Debian):**
 ```bash
-# Using venv (recommended)
-python -m venv venv
+# Update package list
+sudo apt update
 
-# Activate virtual environment
-# On Windows:
+# Install Python and dependencies
+sudo apt install python3 python3-pip python3-venv
+
+# Verify installation
+python3 --version
+pip3 --version
+```
+
+### Set Up Virtual Environment
+
+```bash
+# Create a virtual environment
+python3 -m venv venv
+
+# Activate the virtual environment
+# Windows
 venv\Scripts\activate
-# On macOS/Linux:
+
+# macOS/Linux
 source venv/bin/activate
 ```
 
-**Alternative Virtual Environment Options:**
-- **conda**: `conda create -n visolearn python=3.10` then `conda activate visolearn`
-- **pyenv**: `pyenv virtualenv 3.10.0 visolearn` then `pyenv activate visolearn`
+## 📥 Project Setup
 
-**Troubleshooting:**
-- If `python -m venv` fails, ensure you have the venv module installed
-- On Ubuntu/Debian: `sudo apt install python3-venv`
-- On Fedora: `sudo dnf install python3-virtualenv`
+### Clone the Repository
 
-#### 📦 Step 3: Install Dependencies
 ```bash
-# Upgrade pip first
-pip install --upgrade pip
+# Clone the VisoLearn-2 repository
+git clone https://github.com/visolearn/visolearn-2.git
 
-# Install requirements
-pip install -r requirements.txt
-
-# Install additional dependencies for development (optional)
-pip install pytest pytest-cov black flake8 mypy
+# Navigate to the project directory
+cd visolearn-2
 ```
 
-**Dependency Details:**
-- **gradio==5.35.0**: Web interface framework
-- **pillow**: Image processing library
-- **google-generativeai==0.8.4**: Google AI integration
-- **openai**: OpenAI API client
-- **python-dotenv**: Environment variable management
+### Install Dependencies
 
-**Troubleshooting:**
-- If installation fails due to permission issues, try:
-  ```bash
-  pip install --user -r requirements.txt
-  ```
-- For network issues, you may need to configure pip to use a proxy
+```bash
+# Install required Python packages
+pip install -r requirements.txt
 
-#### 🔑 Step 4: Configure Environment Variables
+# Install additional dependencies for development
+pip install -r requirements-dev.txt
+```
+
+### Verify Installation
+
+```bash
+# Check that all dependencies are installed
+pip list
+
+# Run a quick test
+python -c "import app; print('VisoLearn-2 imported successfully')"
+```
+
+## 🔑 API Configuration
+
+### Set Up API Keys
+
+VisoLearn-2 requires API keys for OpenAI, Google, and other services.
+
+#### Option 1: Environment Variables
 
 Create a `.env` file in the project root:
+
 ```bash
-cp .env.example .env  # If .env.example exists
+# Create .env file
+touch .env
+
+# Edit the file
 nano .env
 ```
 
-**Required API Keys:**
-```env
-# Google API Configuration
-GOOGLE_API_KEY=your_google_api_key_here
-GEMINI_API_KEY=your_gemini_api_key_here
+Add your API keys:
 
-# OpenAI Configuration
+```env
+# OpenAI API Key
 OPENAI_API_KEY=your_openai_api_key_here
 
-# Optional: Hugging Face token
-HF_TOKEN=your_hf_token_here
+# Google API Key
+GOOGLE_API_KEY=your_google_api_key_here
+
+# Hugging Face Token
+HF_TOKEN=your_huggingface_token_here
+
+# Blue Foundation API Key
+BFL_API_KEY=your_blue_foundation_api_key_here
+
+# Debug mode (optional)
+DEBUG_MODE=True
 ```
 
-**API Key Sources:**
-- Google API Key: [Google Cloud Console](https://console.cloud.google.com/)
-- OpenAI API Key: [OpenAI Platform](https://platform.openai.com/)
-- Hugging Face Token: [Hugging Face](https://huggingface.co/)
+#### Option 2: Direct Configuration
 
-#### 🚀 Step 5: Launch the Application
+Edit `config.py` and add your API keys directly:
+
+```python
+# config.py
+OPENAI_API_KEY = "your_openai_api_key_here"
+GOOGLE_API_KEY = "your_google_api_key_here"
+HF_TOKEN = "your_huggingface_token_here"
+BFL_API_KEY = "your_blue_foundation_api_key_here"
+DEBUG_MODE = True
+```
+
+### API Key Security
+
+**Best Practices:**
+- Never commit API keys to version control
+- Use environment variables for production
+- Implement key rotation policies
+- Monitor API usage regularly
+
+## 🚀 Running VisoLearn-2
+
+### Development Mode
+
 ```bash
+# Run the application in development mode
 python app.py
+
+# The application will be available at http://localhost:7860
 ```
 
-The application will start and be available at:
-- Local: `http://localhost:7860`
-- Network: `http://0.0.0.0:7860` (if configured)
+### Production Mode
 
-**Troubleshooting:**
-- If port 7860 is in use, change it in `app.py` or use:
-  ```bash
-  python app.py --server_port 7861
-  ```
-- For firewall issues, ensure the port is open
-
-### ☁️ Method 2: AWS EC2 Deployment
-
-#### 🚀 Step 1: Launch EC2 Instance
 ```bash
-# Recommended instance: t3.large or larger for optimal performance
-# Ubuntu 20.04 LTS or Amazon Linux 2
-# Minimum 8GB RAM, 20GB storage
+# Install additional production dependencies
+pip install gunicorn
+
+# Run with production server
+gunicorn -w 4 -b 0.0.0.0:7860 app:main
+
+# For better performance, use:
+gunicorn -w 8 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:7860 app:main
 ```
 
-**Instance Configuration:**
-- **Instance Type**: t3.large (2 vCPUs, 8GB RAM) or larger
-- **AMI**: Ubuntu 20.04 LTS or Amazon Linux 2
-- **Storage**: 20GB+ GP2/GP3 SSD
-- **Security Group**: Open ports 22 (SSH), 80 (HTTP), 443 (HTTPS), 7860 (App)
+### Docker Deployment (Optional)
 
-#### 🛠️ Step 2: Initial Server Setup
 ```bash
-# Update system packages
-sudo apt update && sudo apt upgrade -y
+# Build Docker image
+docker build -t visolearn-2 .
 
-# Install Python 3.10+
-sudo apt install python3.10 python3.10-pip python3.10-venv -y
+# Run Docker container
+docker run -p 7860:7860 --env-file .env visolearn-2
 
-# Install system dependencies
-sudo apt install build-essential libopencv-dev nginx -y
-
-# Install additional tools
-sudo apt install git curl wget unzip -y
+# For production with proper configuration
+docker run -d -p 7860:7860 \
+  --env-file .env \
+  --name visolearn-2 \
+  --restart unless-stopped \
+  visolearn-2
 ```
 
-**Optional Security Enhancements:**
+## 🧪 Testing Setup
+
+### Install Test Dependencies
+
 ```bash
-# Set up firewall
-sudo ufw allow 22
-sudo ufw allow 80
-sudo ufw allow 443
-sudo ufw allow 7860
-sudo ufw enable
-
-# Set up fail2ban for security
-sudo apt install fail2ban
-sudo systemctl enable fail2ban
+# Install testing packages
+pip install pytest pytest-cov pytest-mock
 ```
 
-#### 📦 Step 3: Application Deployment
+### Run Tests
+
 ```bash
-# Clone and setup application
-git clone https://github.com/yourusername/VisoLearn-2.git
-cd VisoLearn-2
+# Run all tests
+pytest tests/
 
-# Create virtual environment
-python3.10 -m venv venv
-source venv/bin/activate
+# Run tests with coverage
+pytest --cov=./ --cov-report=html tests/
 
-# Install dependencies
-pip install -r requirements.txt
+# Run specific test module
+pytest tests/test_image_generation.py
 
-# Configure environment variables
-cp .env.example .env
-nano .env  # Add your API keys
+# Run tests with verbose output
+pytest -v tests/
 ```
 
-#### 🔐 Step 4: Set Up Reverse Proxy (Optional)
+### Test Configuration
 
-Install and configure Nginx:
+Create a `pytest.ini` file for test configuration:
+
+```ini
+[pytest]
+testpaths = tests
+python_files = test_*.py
+python_classes = Test*
+python_functions = test_*
+addopts = --tb=short -v
+```
+
+## 📁 File Structure Setup
+
+### Session Storage
+
 ```bash
-sudo apt install nginx
+# Create sessions directory
+mkdir -p "Sessions History"
+
+# Set proper permissions
+chmod 755 "Sessions History"
 ```
 
-Create a configuration file at `/etc/nginx/sites-available/visolearn`:
+### Static Files
+
+```bash
+# Create static files directory
+mkdir -p static
+
+# Copy static assets
+cp -r static/templates static/
+cp static/styles.css static/
+```
+
+## 🔧 Configuration Options
+
+### Application Configuration
+
+Edit `config.py` to customize application behavior:
+
+```python
+# Session timeout (minutes)
+SESSION_TIMEOUT = 30
+
+# Maximum session history
+MAX_SESSION_HISTORY = 100
+
+# Image generation settings
+DEFAULT_IMAGE_SIZE = "1024x1024"
+DEFAULT_IMAGE_STYLE = "cartoon"
+
+# Analytics settings
+ENABLE_ANALYTICS = True
+ANALYTICS_INTERVAL = 60  # seconds
+```
+
+### Environment Variables
+
+```bash
+# Set environment variables (Linux/macOS)
+export OPENAI_API_KEY="your_key_here"
+export GOOGLE_API_KEY="your_key_here"
+export DEBUG_MODE=True
+
+# Set environment variables (Windows)
+set OPENAI_API_KEY=your_key_here
+set GOOGLE_API_KEY=your_key_here
+set DEBUG_MODE=True
+```
+
+## 🌐 Network Configuration
+
+### Firewall Settings
+
+```bash
+# Allow traffic on port 7860 (default)
+sudo ufw allow 7860/tcp
+
+# For production, you may need additional ports
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+```
+
+### Reverse Proxy Setup (Nginx)
+
 ```nginx
 server {
     listen 80;
-    server_name your-domain.com;
+    server_name visolearn.example.com;
 
     location / {
         proxy_pass http://localhost:7860;
@@ -217,307 +321,372 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
+
+        # WebSocket support
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
     }
 }
 ```
 
-Enable the configuration:
+## 📊 Monitoring Setup
+
+### Logging Configuration
+
+```python
+# Configure logging in your application
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('visolearn.log'),
+        logging.StreamHandler()
+    ]
+)
+```
+
+### Performance Monitoring
+
 ```bash
-sudo ln -s /etc/nginx/sites-available/visolearn /etc/nginx/sites-enabled/
-sudo nginx -t  # Test configuration
-sudo systemctl restart nginx
+# Install monitoring tools
+pip install psutil prometheus-client
+
+# Add monitoring endpoints to your application
 ```
 
-#### 🔒 Step 5: Set Up SSL (Optional but Recommended)
+## 🔄 Update and Maintenance
 
-Install Certbot for Let's Encrypt:
+### Updating Dependencies
+
 ```bash
-sudo apt install certbot python3-certbot-nginx
-sudo certbot --nginx -d your-domain.com
+# Update all Python packages
+pip list --outdated
+pip install --upgrade -r requirements.txt
+
+# Update specific package
+pip install --upgrade package-name
 ```
 
-#### 🚀 Step 6: Run as a Service
+### Version Control
 
-Create a systemd service file at `/etc/systemd/system/visolearn.service`:
-```ini
-[Unit]
-Description=VisoLearn-2 Application
-After=network.target
-
-[Service]
-User=ubuntu
-WorkingDirectory=/home/ubuntu/VisoLearn-2
-Environment="PATH=/home/ubuntu/VisoLearn-2/venv/bin"
-ExecStart=/home/ubuntu/VisoLearn-2/venv/bin/python /home/ubuntu/VisoLearn-2/app.py
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Enable and start the service:
 ```bash
-sudo systemctl daemon-reload
-sudo systemctl enable visolearn
-sudo systemctl start visolearn
-sudo systemctl status visolearn
-```
+# Check current version
+git tag
 
-### 🐳 Method 3: Docker Deployment (Advanced)
-
-#### 📦 Step 1: Install Docker
-```bash
-# For Ubuntu/Debian
-sudo apt update
-sudo apt install docker.io docker-compose
-sudo systemctl enable docker
-sudo systemctl start docker
-
-# Add your user to the docker group
-sudo usermod -aG docker $USER
-newgrp docker
-```
-
-#### 📦 Step 2: Create Dockerfile
-```dockerfile
-FROM python:3.10-slim
-
-WORKDIR /app
-
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY . ./
-
-EXPOSE 7860
-
-CMD ["python", "app.py"]
-```
-
-#### 🐳 Step 3: Build and Run Container
-```bash
-docker build -t visolearn .
-docker run -d -p 7860:7860 --env-file .env --name visolearn visolearn
-```
-
-#### 🔧 Step 4: Docker Compose (Optional)
-
-Create `docker-compose.yml`:
-```yaml
-version: '3.8'
-
-services:
-  visolearn:
-    build: .
-    ports:
-      - "7860:7860"
-    env_file:
-      - .env
-    volumes:
-      - ./data:/app/data
-    restart: unless-stopped
-```
-
-Run with:
-```bash
-docker-compose up -d
-```
-
-## 🔧 Configuration Options
-
-### 📝 Environment Variables
-
-**Core Configuration:**
-```env
-# Server Configuration
-SERVER_HOST=0.0.0.0
-SERVER_PORT=7860
-
-# API Configuration
-GOOGLE_API_KEY=your_key
-OPENAI_API_KEY=your_key
-GEMINI_API_KEY=your_key
-
-# Application Settings
-DEBUG_MODE=False
-MAX_SESSIONS=10
-IMAGE_CACHE_SIZE=100
-```
-
-### 🎨 Customization Options
-
-**Interface Customization:**
-- Modify `static/styles.css` for visual styling
-- Edit UI components in `ui/interface.py`
-- Configure Gradio theme parameters
-
-**Behavior Customization:**
-- Adjust difficulty levels in `config.py`
-- Modify evaluation thresholds
-- Customize feedback messages
-
-## 🐛 Troubleshooting
-
-### 🔴 Common Issues and Solutions
-
-**Issue: Application fails to start**
-- **Cause**: Missing dependencies or incorrect Python version
-- **Solution**: Check requirements and Python version
-  ```bash
-  python --version
-  pip list
-  ```
-
-**Issue: API keys not working**
-- **Cause**: Invalid or expired API keys
-- **Solution**: Verify keys in `.env` file and check API provider status
-
-**Issue: Images not generating**
-- **Cause**: Network issues or API quota exceeded
-- **Solution**: Check internet connection and API usage limits
-
-**Issue: Slow performance**
-- **Cause**: Insufficient system resources
-- **Solution**: Upgrade hardware or reduce concurrent operations
-
-**Issue: Port already in use**
-- **Cause**: Another application using port 7860
-- **Solution**: Change port in `app.py` or kill conflicting process
-  ```bash
-  lsof -i :7860
-  kill -9 <PID>
-  ```
-
-### 📊 Performance Optimization Tips
-
-**Local Development:**
-- Use virtual environments to isolate dependencies
-- Limit concurrent sessions during development
-- Disable unnecessary features for testing
-
-**Production Deployment:**
-- Use a production-ready web server (Nginx, Apache)
-- Implement proper caching strategies
-- Monitor resource usage and scale appropriately
-- Use load balancing for high-traffic scenarios
-
-## 📈 Monitoring and Maintenance
-
-### 📊 System Monitoring
-
-**Key Metrics to Monitor:**
-- CPU and memory usage
-- API call rates and quotas
-- Session counts and durations
-- Error rates and types
-
-**Monitoring Tools:**
-- **System**: `htop`, `glances`, `nmon`
-- **Logs**: `journalctl`, `tail -f`
-- **Network**: `iftop`, `nethogs`
-
-### 🔄 Update Process
-
-**Updating VisoLearn-2:**
-```bash
-# Pull latest changes
+# Update to latest version
 git pull origin main
 
-# Update dependencies
+# Check for changes
+git status
+```
+
+## 🛡️ Security Configuration
+
+### API Key Protection
+
+```bash
+# Add .env to .gitignore
+echo ".env" >> .gitignore
+
+# Set file permissions
+chmod 600 .env
+```
+
+### SSL/TLS Configuration
+
+```bash
+# Generate self-signed certificate (development only)
+openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365
+
+# Use with your application
+python app.py --ssl-keyfile key.pem --ssl-certfile cert.pem
+```
+
+## 📚 Troubleshooting
+
+### Common Installation Issues
+
+**Python Version Issues:**
+```bash
+# Check Python version
+python --version
+
+# Install specific Python version
+pyenv install 3.11.0
+pyenv global 3.11.0
+```
+
+**Dependency Conflicts:**
+```bash
+# Create clean virtual environment
+rm -rf venv
+python -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
-
-# Restart application
-# For local: Ctrl+C and restart
-# For service: sudo systemctl restart visolearn
 ```
 
-**Version Compatibility:**
-- Always check release notes for breaking changes
-- Test updates in a staging environment first
-- Backup configuration and data before major updates
+**API Connection Problems:**
+```bash
+# Test API connectivity
+curl https://api.openai.com/v1/models -H "Authorization: Bearer YOUR_API_KEY"
 
-## 🔒 Security Best Practices
-
-### 🛡️ Application Security
-
-**API Key Management:**
-- Never commit API keys to version control
-- Use environment variables for sensitive data
-- Rotate API keys regularly
-- Implement rate limiting
-
-**Network Security:**
-- Use HTTPS for all communications
-- Implement proper firewall rules
-- Use VPN for remote access
-- Regular security audits
-
-### 📁 Data Security
-
-**Data Protection:**
-- Encrypt sensitive data at rest
-- Implement proper access controls
-- Regular data backups
-- Secure data disposal procedures
-
-**Privacy Compliance:**
-- Follow GDPR and other privacy regulations
-- Implement data minimization principles
-- Provide clear privacy policies
-- Obtain proper consent for data collection
-
-## 🎓 Advanced Configuration
-
-### 🔧 Custom API Endpoints
-
-For advanced users, you can extend the API functionality:
-
-```python
-# Example: Custom API endpoint in app.py
-from fastapi import FastAPI
-
-api = FastAPI()
-
-@api.get("/api/health")
-def health_check():
-    return {"status": "healthy", "version": "2.0.0"}
+# Check network connectivity
+ping api.openai.com
 ```
 
-### 📊 Custom Analytics
+### Debugging Tips
 
-Extend analytics capabilities:
+```bash
+# Run in debug mode
+python app.py --debug
 
-```python
-# Example: Custom analytics in utils/analytics.py
-def custom_analytics(session_data):
-    # Implement custom tracking logic
-    return analytics_results
+# Enable verbose logging
+export LOG_LEVEL=DEBUG
+python app.py
+
+# Check logs
+tail -f visolearn.log
 ```
 
-### 🤖 Custom AI Models
+## 🎯 Deployment Checklist
 
-Integrate additional AI models:
+### Pre-Deployment Checklist
+
+- [ ] All API keys configured
+- [ ] Environment variables set correctly
+- [ ] Dependencies installed
+- [ ] Tests passing
+- [ ] Configuration files updated
+- [ ] Backup of existing data
+- [ ] Monitoring configured
+- [ ] Security settings verified
+
+### Post-Deployment Checklist
+
+- [ ] Application accessible
+- [ ] API endpoints working
+- [ ] Error logging functional
+- [ ] Performance monitoring active
+- [ ] Backup system verified
+- [ ] Security audit completed
+
+## 📈 Performance Optimization
+
+### Caching Configuration
 
 ```python
-# Example: Custom model integration in models/custom.py
-def custom_model_inference(prompt):
-    # Implement custom AI logic
-    return model_output
+# Configure caching in your application
+from functools import lru_cache
+
+@lru_cache(maxsize=128)
+def cached_function(arg1, arg2):
+    # Function implementation
+    pass
+```
+
+### Database Optimization
+
+```bash
+# For SQLite databases
+sqlite3 database.db "VACUUM;"
+sqlite3 database.db "ANALYZE;"
+```
+
+## 🌍 Internationalization Setup
+
+### Language Configuration
+
+```python
+# Configure supported languages
+SUPPORTED_LANGUAGES = [
+    'en',  # English
+    'es',  # Spanish
+    'fr',  # French
+    'de',  # German
+    'zh'   # Chinese
+]
+```
+
+### Localization Files
+
+```bash
+# Create localization directory
+mkdir -p locales
+
+# Generate translation files
+pybabel extract -o locales/messages.pot .
+pybabel init -i locales/messages.pot -d locales -l es
+```
+
+## 📱 Mobile Configuration
+
+### Responsive Design Testing
+
+```bash
+# Test responsive design
+python app.py
+
+# Open in browser and use device emulator
+# Chrome: F12 > Device Toolbar
+# Firefox: F12 > Responsive Design Mode
+```
+
+### Mobile-Specific Settings
+
+```python
+# Configure mobile-specific settings
+MOBILE_SETTINGS = {
+    'touch_target_size': '48px',
+    'font_size': '16px',
+    'button_size': 'large',
+    'spacing': 'increased'
+}
+```
+
+## 🤖 AI Model Configuration
+
+### Model Selection
+
+```python
+# Configure AI model preferences
+AI_MODEL_CONFIG = {
+    'image_generation': {
+        'primary': 'dall-e-3',
+        'fallback': 'dall-e-2',
+        'quality': 'hd'
+    },
+    'text_generation': {
+        'primary': 'gpt-4',
+        'fallback': 'gpt-3.5-turbo',
+        'temperature': 0.7
+    },
+    'evaluation': {
+        'primary': 'gemini-pro',
+        'fallback': 'gpt-4',
+        'strictness': 'moderate'
+    }
+}
+```
+
+### Model Performance Tuning
+
+```python
+# Optimize model parameters
+MODEL_PARAMETERS = {
+    'image_generation': {
+        'size': '1024x1024',
+        'quality': 'standard',
+        'style': 'natural'
+    },
+    'text_generation': {
+        'max_tokens': 500,
+        'temperature': 0.7,
+        'top_p': 1.0,
+        'frequency_penalty': 0.5,
+        'presence_penalty': 0.5
+    }
+}
+```
+
+## 📊 Analytics Configuration
+
+### Data Collection Setup
+
+```python
+# Configure analytics collection
+ANALYTICS_CONFIG = {
+    'enabled': True,
+    'interval': 60,  # seconds
+    'retention_days': 30,
+    'anonymize_data': True,
+    'track_performance': True,
+    'track_errors': True
+}
+```
+
+### Reporting Configuration
+
+```python
+# Configure reporting options
+REPORTING_CONFIG = {
+    'daily_reports': True,
+    'weekly_summary': True,
+    'email_notifications': False,
+    'dashboard_updates': True,
+    'export_formats': ['pdf', 'csv', 'json']
+}
+```
+
+## 🔒 Privacy Configuration
+
+### Data Protection Settings
+
+```python
+# Configure privacy settings
+PRIVACY_CONFIG = {
+    'data_encryption': True,
+    'anonymize_user_data': True,
+    'retention_policy': '30_days',
+    'gdpr_compliance': True,
+    'coppa_compliance': True,
+    'data_export_enabled': True
+}
+```
+
+### Consent Management
+
+```python
+# Configure consent management
+CONSENT_CONFIG = {
+    'require_consent': True,
+    'consent_expiry': '1_year',
+    'consent_reminder': '30_days',
+    'consent_logging': True,
+    'consent_withdrawal': True
+}
 ```
 
 ## 📚 Additional Resources
 
-### 📖 Documentation Links
-- [Official Documentation](https://visolearn.org/docs)
-- [API Reference](https://visolearn.org/api)
-- [Developer Guide](https://visolearn.org/developers)
+### Documentation Links
+- **Official Documentation**: https://visolearn.org/docs
+- **API Reference**: https://visolearn.org/api
+- **Developer Guide**: https://visolearn.org/developers
+- **Community Forum**: https://community.visolearn.org
 
-### 💬 Community Support
-- [GitHub Issues](https://github.com/visolearn/visolearn-2/issues)
-- [Discussion Forum](https://forum.visolearn.org)
-- [Slack Community](https://slack.visolearn.org)
+### Support Channels
+- **GitHub Issues**: https://github.com/visolearn/visolearn-2/issues
+- **Email Support**: support@visolearn.org
+- **Live Chat**: https://visolearn.org/support
+- **Knowledge Base**: https://visolearn.org/help
 
-### 🎓 Learning Resources
-- [Autism Education Research](https://autism-research.org)
-- [AI in Education](https://ai-education.org)
-- [Gradio Documentation](https://gradio.app/docs)
+### Learning Resources
+- **Tutorials**: https://visolearn.org/tutorials
+- **Video Guides**: https://visolearn.org/videos
+- **Webinars**: https://visolearn.org/webinars
+- **FAQ**: https://visolearn.org/faq
+
+## 🎯 Next Steps
+
+After completing the installation:
+
+1. **Run the application**: `python app.py`
+2. **Access the interface**: http://localhost:7860
+3. **Explore features**: Try the image description and story modules
+4. **Review documentation**: Check the user guide for detailed usage
+5. **Join the community**: Connect with other users and developers
+
+## 📞 Getting Help
+
+If you encounter any issues during installation:
+
+1. **Check the troubleshooting section** above
+2. **Review the FAQ** for common questions
+3. **Search the knowledge base** for solutions
+4. **Ask in the community forum** for assistance
+5. **Contact support** for urgent issues
+
+This installation guide provides comprehensive instructions for setting up VisoLearn-2 in various environments. For specific configuration needs or advanced setups, refer to the technical documentation or contact our support team.

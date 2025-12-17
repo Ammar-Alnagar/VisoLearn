@@ -126,21 +126,21 @@ graph TD
 
 ```
 VisoLearn-2/
-├── 📁 app.py                          # Main application entry point
-├── 📁 config.py                       # Configuration settings and constants
-├── 📁 models/                         # AI model integration modules
-│   ├── 📄 comic_image_generator.py    # Comic generation and panel management
-│   ├── 📄 evaluation.py               # Description evaluation and feedback
-│   ├── 📄 image_generation.py         # OpenAI image generation integration
-│   ├── 📄 prompt_generation.py        # Educational prompt creation
-│   └── 📄 story_generation.py         # Story structure and narrative flow
+├── app.py                          # Main application entry point
+├── config.py                       # Configuration settings and constants
+├── models/                         # AI model integration modules
+│   ├── comic_image_generator.py    # Comic generation and panel management
+│   ├── evaluation.py               # Description evaluation and feedback
+│   ├── image_generation.py         # OpenAI image generation integration
+│   ├── prompt_generation.py        # Educational prompt creation
+│   └── story_generation.py         # Story structure and narrative flow
 ├── 📁 ui/                             # User interface components
-│   ├── 📄 interface.py                # Main Gradio interface definition
-│   └── 📄 story_interface.py          # Comic story generator interface
+│   ├── interface.py                # Main Gradio interface definition
+│   └── story_interface.py          # Comic story generator interface
 ├── 📁 utils/                          # Utility functions and helpers
-│   ├── 📄 comic_panel_splitter.py     # Computer vision panel extraction
-│   ├── 📄 file_operations.py          # File I/O and export functions
-│   ├── 📄 state_management.py         # Session state handling
+│   ├── comic_panel_splitter.py     # Computer vision panel extraction
+│   ├── file_operations.py          # File I/O and export functions
+│   ├── state_management.py         # Session state handling
 │   └── 📄 visualization.py            # UI visualization helpers
 ├── 📄 requirements.txt                # Python dependencies
 ├── 📄 .env.example                    # Environment variables template

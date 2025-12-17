@@ -1,10 +1,10 @@
-# 🤖 API Reference
+# API Reference
 
-## 📋 Overview
+## Overview
 
 This document provides comprehensive information about the API integrations and external services used in VisoLearn-2, including OpenAI, Google Gemini, and Google Drive.
 
-## 🔑 API Configuration
+## API Configuration
 
 ### Environment Variables Setup
 
@@ -27,19 +27,81 @@ BFL_API_KEY=your_blue_foundation_api_key_here
 - Regularly rotate API keys
 - Monitor API usage and quotas
 
-## 🤖 OpenAI API Integration
+## Google Generative AI Integration
 
-### Image Generation
+### Imagen 4.0 Ultra Image Generation
 
-#### Endpoint: `openai.Image.create()`
+#### Endpoint: `genai.Client().models.generate_images()`
 ```python
-import openai
-from config import OPENAI_API_KEY
+import base64
+from google import genai
+from config import GOOGLE_API_KEY
 
-openai.api_key = OPENAI_API_KEY
-
-def generate_image(prompt, n=1, size="1024x1024", response_format="url"):
+def generate_image_with_imagen(prompt, model="models/imagen-4.0-ultra-generate-preview-06-06"):
     """
+    Generate an image using Google's Imagen 4.0 Ultra API
+
+    Args:
+        prompt (str): Text description of the desired image
+        model (str): Imagen model version to use
+
+    Returns:
+        PIL.Image: Generated image as PIL Image object
+    """
+    client = genai.Client(api_key=GOOGLE_API_KEY)
+
+    response = client.models.generate_images(
+        model=model,
+        prompt=prompt,
+        config=dict(
+            number_of_images=1,
+            output_mime_type="image/jpeg",
+            person_generation="ALLOW_ADULT",
+            aspect_ratio="1:1",
+        )
+    )
+
+    # Process response
+    image_bytes = response.generated_images[0].image.image_bytes
+    image = Image.open(BytesIO(image_bytes))
+
+    return image
+```
+
+### Gemini Vision API
+
+#### Multimodal Analysis: `GenerativeModel('gemini-2.5-flash')`
+```python
+from google.generativeai import GenerativeModel, Content, Part
+import base64
+
+def analyze_image_with_gemini(image_data, prompt_text):
+    """
+    Analyze image content using Gemini Vision capabilities
+
+    Args:
+        image_data: PIL Image or base64 data URL
+        prompt_text (str): Analysis instructions
+
+    Returns:
+        str: AI-generated analysis response
+    """
+    # Convert image to base64
+    if hasattr(image_data, 'save'):  # PIL Image
+        buffer = io.BytesIO()
+        image_data.save(buffer, format="PNG")
+        base64_img = base64.b64encode(buffer.getvalue()).decode('utf-8')
+    else:  # Data URL
+        base64_img = image_data.split(",")[1]
+
+    vision_model = GenerativeModel('gemini-2.5-flash')
+    image_part = Part(inline_data={"mime_type": "image/png", "data": base64.b64decode(base64_img)})
+    text_part = Part(text=prompt_text)
+    multimodal_content = Content(parts=[image_part, text_part])
+
+    response = vision_model.generate_content(multimodal_content)
+    return response.text
+```
     Generate an image using OpenAI's DALL-E API
     
     Args:
